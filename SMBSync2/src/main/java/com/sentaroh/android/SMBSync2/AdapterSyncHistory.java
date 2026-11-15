@@ -173,7 +173,8 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
             holder.tv_date = (TextView) v.findViewById(R.id.sync_history_list_view_date);
             holder.tv_time = (TextView) v.findViewById(R.id.sync_history_list_view_time);
             holder.tv_prof = (TextView) v.findViewById(R.id.sync_history_list_view_prof);
-            holder.tv_last_file = (TextView) v.findViewById(R.id.sync_history_list_view_last_file);
+            holder.tv_file_label = (TextView) v.findViewById(R.id.sync_history_list_view_file_label);
+            holder.tv_pair_name = (TextView) v.findViewById(R.id.sync_history_list_view_pair_name);
             holder.tv_status = (TextView) v.findViewById(R.id.sync_history_list_view_status);
             holder.tv_cnt_copied = (TextView) v.findViewById(R.id.sync_history_list_view_count_copied);
             holder.tv_cnt_deleted = (TextView) v.findViewById(R.id.sync_history_list_view_count_deleted);
@@ -213,10 +214,11 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 card.setCornerRadius(16 * mContext.getResources().getDisplayMetrics().density);
                 holder.ll_main.setBackground(card);
                 holder.tv_prof.setTextColor(light ? Color.rgb(20, 34, 56) : Color.WHITE);
-                holder.tv_last_file.setTextColor(light ? Color.rgb(20, 34, 56) : Color.WHITE);
+                holder.tv_file_label.setTextColor(light ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239));
                 int secondary = light ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195);
                 for (TextView text : new TextView[]{holder.tv_date, holder.tv_time, holder.tv_req,
-                        holder.tv_mode, holder.tv_et, holder.tv_cnt_copied, holder.tv_cnt_deleted, holder.tv_checked}) {
+                        holder.tv_mode, holder.tv_et, holder.tv_cnt_copied, holder.tv_cnt_deleted, holder.tv_checked,
+                        holder.tv_pair_name}) {
                     text.setTextColor(secondary);
                 }
 //        		holder.ll_main.setBackgroundDrawable(ll_default);
@@ -230,13 +232,15 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
 
                 holder.tv_date.setText(o.sync_date);
                 holder.tv_time.setText(o.sync_time);
-                holder.tv_prof.setText(o.sync_prof);
                 if (o.sync_last_checked_file_name == null || o.sync_last_checked_file_name.isEmpty()) {
-                    holder.tv_last_file.setVisibility(View.GONE);
+                    holder.tv_prof.setText(o.sync_prof);
+                    holder.tv_file_label.setVisibility(View.GONE);
+                    holder.tv_pair_name.setVisibility(View.GONE);
                 } else {
-                    holder.tv_last_file.setText(mContext.getString(R.string.sync_history_last_checked_file,
-                            o.sync_last_checked_file_name));
-                    holder.tv_last_file.setVisibility(View.VISIBLE);
+                    holder.tv_prof.setText(o.sync_last_checked_file_name);
+                    holder.tv_file_label.setVisibility(View.VISIBLE);
+                    holder.tv_pair_name.setText(mContext.getString(R.string.sync_message_folder_pair, o.sync_prof));
+                    holder.tv_pair_name.setVisibility(View.VISIBLE);
                 }
 
                 holder.tv_req.setText(o.sync_req);
@@ -299,7 +303,8 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 );
                 holder.cb_sel.setChecked(items.get(position).isChecked);
             } else {
-                holder.tv_last_file.setVisibility(View.GONE);
+                holder.tv_file_label.setVisibility(View.GONE);
+                holder.tv_pair_name.setVisibility(View.GONE);
                 holder.tv_seq.setVisibility(TextView.GONE);
                 holder.tv_date.setVisibility(TextView.GONE);
                 holder.tv_time.setVisibility(TextView.GONE);
@@ -317,7 +322,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
 
     static class ViewHolder {
         CheckBox cb_sel;
-        TextView tv_date, tv_time, tv_prof, tv_last_file, tv_status, tv_cnt_copied, tv_cnt_deleted, tv_checked;
+        TextView tv_date, tv_time, tv_prof, tv_file_label, tv_pair_name, tv_status, tv_cnt_copied, tv_cnt_deleted, tv_checked;
         TextView tv_error, tv_seq, tv_req, tv_mode;
         TextView tv_et;
         TextView tv_tr;

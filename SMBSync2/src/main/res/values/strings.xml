@@ -39,7 +39,7 @@
     <string name="sync_direction_label">Sync direction</string>
     <string name="history_page_title">Activity</string>
     <string name="history_page_subtitle">Recent runs, checked files, and results</string>
-    <string name="sync_history_last_checked_file">Last checked: %1$s</string>
+    <string name="sync_history_last_checked_label">Last checked file</string>
     <string name="sync_message_folder_pair">Folder pair: %1$s</string>
     <string name="history_select">Select</string>
     <string name="history_done">Done</string>
