@@ -42,6 +42,16 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textStyle="bold" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/sync_history_list_view_last_file"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:visibility="gone" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

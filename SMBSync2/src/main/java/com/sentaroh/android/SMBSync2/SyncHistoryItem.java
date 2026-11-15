@@ -44,6 +44,7 @@ class SyncHistoryItem {
     public int sync_result_no_of_ignored = 0;
     public int sync_result_no_of_retry = 0;
     public long sync_result_no_of_checked = -1;
+    public String sync_last_checked_file_name = "";
 
     public String sync_error_text = "";
 

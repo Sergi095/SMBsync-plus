@@ -127,6 +127,7 @@ public class AdapterSyncMessage extends ArrayAdapter<SyncMessageItem> {
 //            holder.tv_row_msg.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);
             holder.tv_row_type = (TextView) v.findViewById(R.id.msg_list_view_item_type);
             holder.tv_row_title = (TextView) v.findViewById(R.id.msg_list_view_item_title);
+            holder.tv_row_task = (TextView) v.findViewById(R.id.msg_list_view_item_task);
             holder.tv_row_msg = (NonWordwrapTextView) v.findViewById(R.id.msg_list_view_item_msg);
             holder.tv_row_time = (TextView) v.findViewById(R.id.msg_list_view_item_time);
             holder.tv_row_date = (TextView) v.findViewById(R.id.msg_list_view_item_date);
@@ -167,14 +168,18 @@ public class AdapterSyncMessage extends ArrayAdapter<SyncMessageItem> {
                 show_path = true;
             }
 
+            String fileName = show_path ? fileNameFromPath(o.getPath()) : "";
+            boolean show_file_name = !fileName.isEmpty();
             boolean show_title;
-            if(o.getTitle().length() == 0 || o.getTitle().equals("")) {
+            if (!show_file_name && o.getTitle().isEmpty()) {
                 holder.tv_row_title.setVisibility(View.GONE);
                 show_title = false;
             } else {
                 holder.tv_row_title.setVisibility(View.VISIBLE);
                 show_title = true;
             }
+            boolean show_task = show_file_name && !o.getTitle().isEmpty();
+            holder.tv_row_task.setVisibility(show_task ? View.VISIBLE : View.GONE);
 
             boolean show_msg;
             if(o.getMessage().length() == 0 || o.getMessage().equals("")) {
@@ -225,12 +230,14 @@ public class AdapterSyncMessage extends ArrayAdapter<SyncMessageItem> {
                 holder.tv_row_time.setTextColor(mTextColor);
                 holder.tv_row_date.setTextColor(mTextColor);
                 if (show_title) holder.tv_row_title.setTextColor(mTextColor);
+                if (show_task) holder.tv_row_task.setTextColor(mTextColor);
                 if (show_msg) holder.tv_row_msg.setTextColor(mTextColor);
                 if (show_path) holder.tv_row_path.setTextColor(mTextColor);
             } else {
                 holder.tv_row_time.setTextColor(col_header);
                 holder.tv_row_date.setTextColor(col_header);
                 if (show_title) holder.tv_row_title.setTextColor(col_header);
+                if (show_task) holder.tv_row_task.setTextColor(col_header);
                 if (show_msg) holder.tv_row_msg.setTextColor(col_header);
                 if (show_path) holder.tv_row_path.setTextColor(col_header);
             }
@@ -242,7 +249,8 @@ public class AdapterSyncMessage extends ArrayAdapter<SyncMessageItem> {
             //set messages text
             holder.tv_row_time.setText(o.getTime());
             holder.tv_row_date.setText(o.getDate());
-            if (show_title) holder.tv_row_title.setText(o.getTitle());
+            if (show_title) holder.tv_row_title.setText(show_file_name ? fileName : o.getTitle());
+            if (show_task) holder.tv_row_task.setText(c.getString(R.string.sync_message_folder_pair, o.getTitle()));
             if (show_msg) holder.tv_row_msg.setText(o.getMessage());
             if (show_path) holder.tv_row_path.setText(o.getPath());
             if (show_type) holder.tv_row_type.setText(o.getType());
@@ -258,11 +266,18 @@ public class AdapterSyncMessage extends ArrayAdapter<SyncMessageItem> {
         return v;
     }
 
+    private String fileNameFromPath(String path) {
+        String normalized = path.replace('\\', '/');
+        while (normalized.endsWith("/")) normalized = normalized.substring(0, normalized.length() - 1);
+        int slash = normalized.lastIndexOf('/');
+        return normalized.substring(slash + 1);
+    }
+
     ;
 
     private class ViewHolder {
         //		TextView tv_row_cat;
-        TextView tv_row_time, tv_row_date, tv_row_title, tv_row_type;
+        TextView tv_row_time, tv_row_date, tv_row_title, tv_row_task, tv_row_type;
         NonWordwrapTextView tv_row_msg, tv_row_path;
 //		Configuration config;
     }

@@ -23,8 +23,8 @@ android {
         targetSdkVersion 29
 
 //
-        versionCode 297
-        versionName "2.55-plus.10"
+        versionCode 298
+        versionName "2.55-plus.11"
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_17

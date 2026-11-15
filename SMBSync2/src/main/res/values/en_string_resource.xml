@@ -208,7 +208,7 @@
         <string name="msgs_main_sync_history_transfer_speed">Average transfer rate:</string>
         <string name="msgs_main_sync_history_mode">Mode:</string>
         <string name="msgs_main_sync_history_mode_normal">Normal</string>
-        <string name="msgs_main_sync_history_mode_test">Test</string>
+        <string name="msgs_main_sync_history_mode_test">Test mode</string>
         <string name="msgs_main_sync_history_result_log_not_found">History log file could not be found.</string>
         <string name="msgs_main_sync_history_result_activity_not_found_for_log_display">You will not be able to see the details because there is no application to display the text file.</string>
         <string name="msgs_main_sync_history_status_cancel">Canceled</string>

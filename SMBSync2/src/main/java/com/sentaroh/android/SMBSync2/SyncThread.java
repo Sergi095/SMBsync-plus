@@ -149,6 +149,7 @@ public class SyncThread extends Thread {
         public long totalTransferByte = 0, totalTransferTime = 0;
         public int totalCopyCount, totalDeleteCount, totalIgnoreCount = 0, totalRetryCount = 0;
         public long checkedSourceFileCount = 0;
+        public String lastCheckedFileName = "";
         public long lastScanProgressAt = 0;
 
         public boolean lastModifiedIsFunctional = true;
@@ -618,6 +619,7 @@ public class SyncThread extends Thread {
         mStwa.totalTransferByte = mStwa.totalTransferTime = 0;
         mStwa.totalCopyCount = mStwa.totalDeleteCount = mStwa.totalIgnoreCount = mStwa.totalRetryCount = 0;
         mStwa.checkedSourceFileCount = 0;
+        mStwa.lastCheckedFileName = "";
         mStwa.lastScanProgressAt = 0;
 
         if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_INTERNAL)) {
@@ -3137,6 +3139,7 @@ public class SyncThread extends Thread {
     static final public boolean isFileSelected(SyncThreadWorkArea stwa, SyncTaskItem sti, String relative_file_path, String full_path,
                                                long file_size, long last_modified_time) {
         stwa.checkedSourceFileCount++;
+        stwa.lastCheckedFileName = new java.io.File(full_path).getName();
         long scanTime = System.currentTimeMillis();
         if (stwa.checkedSourceFileCount == 1 || scanTime - stwa.lastScanProgressAt >= 300) {
             stwa.lastScanProgressAt = scanTime;
@@ -4417,6 +4420,7 @@ public class SyncThread extends Thread {
         hli.sync_result_no_of_ignored = ignore_cnt;
         hli.sync_result_no_of_retry = retry_cnt;
         hli.sync_result_no_of_checked = mStwa.checkedSourceFileCount;
+        hli.sync_last_checked_file_name = mStwa.lastCheckedFileName;
         //hli.sync_req = mGp.syncThreadRequestID;
         hli.sync_req = mGp.syncThreadRequestIDdisplay; //for history, we save the translated ID to display
         hli.sync_error_text = error_msg;
