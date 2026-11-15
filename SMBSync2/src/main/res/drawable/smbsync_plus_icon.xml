@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adapted from Lucide's folder-sync icon (ISC License). See assets/third_party_notices.txt. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#08101F"
+        android:pathData="M20,6 L88,6 Q102,6 102,20 L102,88 Q102,102 88,102 L20,102 Q6,102 6,88 L6,20 Q6,6 20,6 Z" />
+    <group
+        android:translateX="18"
+        android:translateY="18"
+        android:scaleX="3"
+        android:scaleY="3">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M9,20 H4 a2,2 0,0 1,-2 -2 V5 a2,2 0,0 1,2 -2 h3.9 a2,2 0,0 1,1.69 0.9 l0.81,1.2 a2,2 0,0 0,1.67 0.9 H20 a2,2 0,0 1,2 2 v0.5" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#29C5EF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M12,10 v4 h4" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#29C5EF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M12,14 l1.535,-1.605 a5,5 0,0 1,8 1.5" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#29C5EF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M22,22 v-4 h-4" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:strokeColor="#29C5EF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M22,18 l-1.535,1.605 a5,5 0,0 1,-8 -1.5" />
+    </group>
+</vector>

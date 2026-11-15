@@ -1,7 +1,8 @@
 
 ### Android template
 # Built application files
-#*.apk
+*.apk
+*.aab
 *.ap_
 
 # Files for the ART/Dalvik VM
@@ -39,9 +40,14 @@ captures/
 *.iml
 .idea/
 
-# Keystore files
-# Uncomment the following line if you do not want to check your keystore files in.
-#*.jks
+# Signing material and local secrets
+*.jks
+*.keystore
+*.p12
+*.pem
+.env
+.env.*
+*.signing.properties
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild

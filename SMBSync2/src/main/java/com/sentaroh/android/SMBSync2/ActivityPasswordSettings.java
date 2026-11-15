@@ -137,6 +137,13 @@ public class ActivityPasswordSettings extends AppCompatActivity {
 
     private void setProtectItemButtonListener() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        final CheckedTextView biometric = findViewById(R.id.preference_application_password_setting_use_biometric);
+        biometric.setChecked(prefs.getBoolean(ApplicationPasswordUtil.BIOMETRIC_UNLOCK_KEY, false));
+        biometric.setOnClickListener(v -> {
+            boolean enabled = !biometric.isChecked();
+            biometric.setChecked(enabled);
+            prefs.edit().putBoolean(ApplicationPasswordUtil.BIOMETRIC_UNLOCK_KEY, enabled).apply();
+        });
         mCtvSettingTimeOut.setChecked(prefs.getBoolean(mContext.getString(R.string.settings_security_use_auth_timeout), true));
         mCtvSettingTimeOut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -292,6 +299,8 @@ public class ActivityPasswordSettings extends AppCompatActivity {
         String hv= ApplicationPasswordUtil.getApplicationPasswordHashValue(prefs);
 
         if (hv.equals("")) {
+            prefs.edit().putBoolean(ApplicationPasswordUtil.BIOMETRIC_UNLOCK_KEY, false).apply();
+            ((CheckedTextView) findViewById(R.id.preference_application_password_setting_use_biometric)).setChecked(false);
             mAppPswdMsg.setText(mContext.getString(R.string.settings_security_application_password_not_created));
             CommonDialog.setViewEnabled(mActivity, mButtonCreate, true);
             CommonDialog.setViewEnabled(mActivity, mButtonChange, false);
@@ -302,6 +311,7 @@ public class ActivityPasswordSettings extends AppCompatActivity {
             CommonDialog.setViewEnabled(mActivity, mCtvSettingUseEditTask, false);
             CommonDialog.setViewEnabled(mActivity, mCtvSettingUseExportTask, false);
             CommonDialog.setViewEnabled(mActivity, mCtvSettingInitSmbAccount, false);
+            CommonDialog.setViewEnabled(mActivity, findViewById(R.id.preference_application_password_setting_use_biometric), false);
         } else {
             mAppPswdMsg.setText(mContext.getString(R.string.settings_security_application_password_created));
             CommonDialog.setViewEnabled(mActivity, mButtonCreate, false);
@@ -313,6 +323,7 @@ public class ActivityPasswordSettings extends AppCompatActivity {
             CommonDialog.setViewEnabled(mActivity, mCtvSettingUseEditTask, true);
             CommonDialog.setViewEnabled(mActivity, mCtvSettingUseExportTask, true);
             CommonDialog.setViewEnabled(mActivity, mCtvSettingInitSmbAccount, true);
+            CommonDialog.setViewEnabled(mActivity, findViewById(R.id.preference_application_password_setting_use_biometric), android.os.Build.VERSION.SDK_INT >= 28);
         }
     }
 

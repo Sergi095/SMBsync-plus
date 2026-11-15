@@ -133,7 +133,7 @@
                 android:id="@+id/edit_sync_folder_dlg_remote_domain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ドメイン"
+                android:hint="Domain (optional)"
                 android:inputType="text"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone"

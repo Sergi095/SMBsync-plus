@@ -20,6 +20,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="12dp"
+                android:text="@string/smb_setup_connection"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="@string/smb_setup_help" />
+
             <Button
                 android:id="@+id/edit_sync_folder_dlg_search_remote_host"
                 android:layout_width="match_parent"
@@ -75,6 +88,25 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 tools:ignore="RtlHardcoded" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:text="@string/smb_setup_security" />
+
+            <Button
+                android:id="@+id/edit_sync_folder_dlg_more_connection_options"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/smb_setup_more" />
+
+            <LinearLayout
+                android:id="@+id/edit_sync_folder_dlg_advanced_connection_options"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
             <CheckedTextView
                 android:id="@+id/edit_sync_folder_dlg_ctv_smb_use_smb2_negotiation"
                 android:layout_width="match_parent"
@@ -114,6 +146,15 @@
 
             </LinearLayout>
 
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="12dp"
+                android:text="@string/smb_setup_credentials"
+                android:textStyle="bold" />
+
             <CheckedTextView
                 android:id="@+id/edit_sync_folder_dlg_ctv_use_user_pass"
                 android:layout_width="match_parent"
@@ -129,7 +170,7 @@
                 android:id="@+id/edit_sync_folder_dlg_remote_domain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ドメイン"
+                android:hint="Domain (optional)"
                 android:inputType="text"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone"
@@ -138,11 +179,11 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/edit_sync_folder_dlg_remote_user"
-                    android:layout_width="145dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/msgs_profile_edit_sync_folder_dlg_remote_smb_username"
                     android:inputType="text"
@@ -150,9 +191,8 @@
 
                 <EditText
                     android:id="@+id/edit_sync_folder_dlg_remote_pass"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:hint="@string/msgs_profile_edit_sync_folder_dlg_remote_smb_password"
                     android:inputType="textPassword"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -170,14 +210,21 @@
                 android:visibility="gone"
                 tools:ignore="RtlHardcoded" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="12dp"
+                android:text="@string/smb_setup_share"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <Button
                     android:id="@+id/edit_sync_folder_dlg_list_share_btn"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/msgs_profile_edit_sync_folder_dlg_remote_smb_share_list"
@@ -185,9 +232,8 @@
 
                 <EditText
                     android:id="@+id/edit_sync_folder_dlg_share_name"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:hint="@string/msgs_profile_edit_sync_folder_dlg_remote_smb_share"
                     android:inputType="text"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -242,7 +288,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="@string/msgs_profile_edit_sync_folder_dlg_dirlist"
+                    android:text="@string/smb_browse_nas"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText

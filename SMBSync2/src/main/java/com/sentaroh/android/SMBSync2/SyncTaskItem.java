@@ -50,12 +50,13 @@ class SyncTaskItem implements Serializable, Cloneable {
 
     public final static String SYNC_TASK_TYPE_MIRROR = "M"; // index 0 (Indexes position from SYNC_TASK_TYPE_LIST not used for now)
     public final static String SYNC_TASK_TYPE_COPY = "C"; // index 1
+    public final static String SYNC_TASK_TYPE_RSYNC = "R"; // add missing files, never overwrite or delete
     public final static String SYNC_TASK_TYPE_MOVE = "X"; // index 2
     public final static String SYNC_TASK_TYPE_SYNC = "S"; // index 3
     public final static String SYNC_TASK_TYPE_ARCHIVE = "A"; // index 4
     public final static String SYNC_TASK_TYPE_DEFAULT = SYNC_TASK_TYPE_COPY;
     public final static String SYNC_TASK_TYPE_DEFAULT_DESCRIPTION = "COPY";
-    public final static String[] SYNC_TASK_TYPE_LIST=new String[]{SYNC_TASK_TYPE_MIRROR, SYNC_TASK_TYPE_COPY, SYNC_TASK_TYPE_MOVE, SYNC_TASK_TYPE_SYNC, SYNC_TASK_TYPE_ARCHIVE};
+    public final static String[] SYNC_TASK_TYPE_LIST=new String[]{SYNC_TASK_TYPE_MIRROR, SYNC_TASK_TYPE_COPY, SYNC_TASK_TYPE_RSYNC, SYNC_TASK_TYPE_MOVE, SYNC_TASK_TYPE_SYNC, SYNC_TASK_TYPE_ARCHIVE};
     private String syncTaskType = SYNC_TASK_TYPE_DEFAULT;
 
     public final static String SYNC_TASK_TWO_WAY_OPTION_ASK_USER = "0";
@@ -168,7 +169,7 @@ class SyncTaskItem implements Serializable, Cloneable {
     private ArrayList<String> syncDirFilter = new ArrayList<String>();
 
     private boolean syncOptionRootDirFileToBeProcessed = true;
-    private boolean syncOptionProcessOverrideCopyMove = true;
+    private boolean syncOptionProcessOverrideCopyMove = false;
     private boolean syncOptionConfirmOverrideDelete = true;
     private boolean syncOptionForceLastModifiedUseSmbsync = false;
     private boolean syncOptionNotUsedLastModifiedForRemote = false;
@@ -211,10 +212,12 @@ class SyncTaskItem implements Serializable, Cloneable {
     public final static String SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_AP = "2"; // list index 2 (deprecated)
     public final static String SYNC_WIFI_STATUS_WIFI_CONNECT_PRIVATE_ADDR = "3"; // list index 3
     public final static String SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_ADDR = "4"; // list index 4
+    public final static String SYNC_WIFI_STATUS_ANY_NETWORK = "5"; // Wi-Fi, cellular, or VPN
     public final static String SYNC_WIFI_STATUS_WIFI_DEFAULT = SYNC_WIFI_STATUS_WIFI_CONNECT_ANY_AP;
     public final static String SYNC_WIFI_STATUS_WIFI_DEFAULT_DESCRIPTION = "Conn any AP";
     public final static String[] SYNC_WIFI_STATUS_WIFI_LIST = new String[]{SYNC_WIFI_STATUS_WIFI_OFF , SYNC_WIFI_STATUS_WIFI_CONNECT_ANY_AP,
-            SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_AP, SYNC_WIFI_STATUS_WIFI_CONNECT_PRIVATE_ADDR, SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_ADDR};
+            SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_AP, SYNC_WIFI_STATUS_WIFI_CONNECT_PRIVATE_ADDR,
+            SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_ADDR, SYNC_WIFI_STATUS_ANY_NETWORK};
     private String syncOptionWifiStatus = SYNC_WIFI_STATUS_WIFI_DEFAULT;
     private boolean syncTaskSkipIfConnectAnotherWifiSsid = false;
 

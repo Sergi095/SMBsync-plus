@@ -133,7 +133,7 @@ public class GlobalParameters extends CommonGlobalParms {
     public boolean sampleProfileCreateRequired = false;
 
 //    public boolean themeIsLight = true;
-    public String settingScreenTheme =SMBSYNC2_SCREEN_THEME_STANDARD;
+    public String settingScreenTheme =SMBSYNC2_SCREEN_THEME_BLACK;
     public int applicationTheme = -1;
     public ThemeColorList themeColorList = null;
 
@@ -471,7 +471,7 @@ public class GlobalParameters extends CommonGlobalParms {
             pe.putString(c.getString(R.string.settings_smb_lm_compatibility), "3");
             pe.putBoolean(c.getString(R.string.settings_smb_use_extended_security), true);
             pe.putString(c.getString(R.string.settings_smb_client_response_timeout), "30000");
-            pe.putBoolean(c.getString(R.string.settings_smb_disable_plain_text_passwords),false);
+            pe.putBoolean(c.getString(R.string.settings_smb_disable_plain_text_passwords),true);
 
 ///*For debug*/pe.putString(c.getString(R.string.settings_log_level), "1").commit();
 ///*For debug*/pe.putBoolean(c.getString(R.string.settings_log_option), true).commit();
@@ -480,7 +480,7 @@ public class GlobalParameters extends CommonGlobalParms {
         }
 
         if (!prefs.contains(c.getString(R.string.settings_screen_theme)))
-            prefs.edit().putString(c.getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_STANDARD).commit();
+            prefs.edit().putString(c.getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_BLACK).commit();
 
         if (!prefs.contains(c.getString(R.string.settings_screen_theme_language)))
             prefs.edit().putString(c.getString(R.string.settings_screen_theme_language), SMBSYNC2_SCREEN_THEME_LANGUAGE_SYSTEM).commit();
@@ -614,7 +614,7 @@ public class GlobalParameters extends CommonGlobalParms {
         settingExportedProfileEncryptRequired = prefs.getBoolean(c.getString(R.string.settings_exported_profile_encryption), true);
         settingSupressAppSpecifiDirWarning = prefs.getBoolean(c.getString(R.string.settings_suppress_warning_app_specific_dir), false);
 
-        settingScreenTheme =prefs.getString(c.getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_STANDARD);
+        settingScreenTheme =prefs.getString(c.getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_BLACK);
         if (prefs.contains("settings_use_light_theme")) {
             boolean themeIsLight = prefs.getBoolean("settings_use_light_theme", false);
             if (themeIsLight) {
@@ -624,7 +624,10 @@ public class GlobalParameters extends CommonGlobalParms {
             }
         }
         if (settingScreenTheme.equals(SMBSYNC2_SCREEN_THEME_LIGHT)) applicationTheme = R.style.MainLight;
-        else if (settingScreenTheme.equals(SMBSYNC2_SCREEN_THEME_BLACK)) applicationTheme = R.style.MainBlack;
+        else if (settingScreenTheme.equals(SMBSYNC2_SCREEN_THEME_BLACK)) applicationTheme = R.style.ModernDark;
+        else if (settingScreenTheme.equals(Constants.SMBSYNC2_SCREEN_THEME_SYSTEM))
+            applicationTheme = (c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                    == Configuration.UI_MODE_NIGHT_YES ? R.style.ModernDark : R.style.MainLight;
         else applicationTheme = R.style.Main;
 //        if (settingUseLightTheme) {
 //            applicationTheme = R.style.MainLight;
@@ -765,7 +768,8 @@ public class GlobalParameters extends CommonGlobalParms {
     //  - all activities and App in AndroidManifest must have: android:configChanges="locale|orientation|screenSize|keyboardHidden|layoutDirection"
     public Context setNewLocale(Context c, boolean init) {
         if (init) loadLanguagePreference(c);
-        return updateLanguageResources(c, settingScreenThemeLanguage);
+        settingScreenThemeLanguage = "en";
+        return updateLanguageResources(c, "en");
     }
 
     // wrap language layout in the base context for all activities
@@ -845,19 +849,19 @@ public class GlobalParameters extends CommonGlobalParms {
 
     public boolean isScreenThemeIsLight() {
         boolean result=false;
-        if (settingScreenTheme.equals(SMBSYNC2_SCREEN_THEME_LIGHT)) result = true;
+        if (applicationTheme == R.style.MainLight) result = true;
         return result;
     }
 
     public String settingsSmbLmCompatibility = "3", settingsSmbUseExtendedSecurity = "true", settingsSmbClientResponseTimeout = "30000";
-    public String settingsSmbDisablePlainTextPasswords="false";
+    public String settingsSmbDisablePlainTextPasswords="true";
 
     final public void initJcifsOption(Context c) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
 
         settingsSmbLmCompatibility = prefs.getString(c.getString(R.string.settings_smb_lm_compatibility), "3");
         boolean ues = prefs.getBoolean(c.getString(R.string.settings_smb_use_extended_security), true);
-        boolean dpp=prefs.getBoolean(c.getString(R.string.settings_smb_disable_plain_text_passwords),false);
+        boolean dpp=prefs.getBoolean(c.getString(R.string.settings_smb_disable_plain_text_passwords),true);
         settingsSmbClientResponseTimeout = prefs.getString(c.getString(R.string.settings_smb_client_response_timeout), "30000");
 
         if (settingsSmbLmCompatibility.equals("3") || settingsSmbLmCompatibility.equals("4")) {

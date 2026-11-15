@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="modern_dark_background">#08101F</color>
+    <color name="modern_dark_panel">#1B273B</color>
+    <color name="modern_dark_accent">#29C5EF</color>
+    <color name="modern_dark_text">#F5F9FB</color>
+
+    <style name="ModernDark" parent="MainBlack">
+        <item name="colorPrimary">@color/modern_dark_background</item>
+        <item name="colorPrimaryDark">@color/modern_dark_background</item>
+        <item name="colorAccent">@color/modern_dark_accent</item>
+        <item name="android:windowBackground">@color/modern_dark_background</item>
+        <item name="android:statusBarColor">@color/modern_dark_background</item>
+        <item name="android:navigationBarColor">@color/modern_dark_background</item>
+        <item name="android:textColorPrimary">@color/modern_dark_text</item>
+    </style>
+</resources>

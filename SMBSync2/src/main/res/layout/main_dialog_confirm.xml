@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="選択" />
+                    android:text="Select" />
 
             </LinearLayout>
 
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="選択" />
+                    android:text="Select" />
 
             </LinearLayout>
 
@@ -134,14 +134,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="取消"
+                android:text="Skip file"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
             <Button
                 android:id="@+id/main_dialog_confirm_conflict_cancel_sync_task_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="同期を中止"
+                android:text="Stop sync"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 

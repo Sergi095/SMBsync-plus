@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,7 +171,12 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
 //			 return getItem(idx).getActive().equals("A");
 //		}
 
-    private Drawable ll_default = null;
+    private void setCardBackground(LinearLayout view, int color) {
+        GradientDrawable card = new GradientDrawable();
+        card.setColor(color);
+        card.setCornerRadius(16 * mContext.getResources().getDisplayMetrics().density);
+        view.setBackground(card);
+    }
 
     @SuppressWarnings("deprecation")
     @Override
@@ -207,7 +213,11 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
             holder.ll_sync = (LinearLayout) v.findViewById(R.id.profile_list_sync_layout);
             holder.ll_entry = (LinearLayout) v.findViewById(R.id.profile_list_entry_layout);
             holder.ll_view = (LinearLayout) v.findViewById(R.id.profile_list_view);
-            if (ll_default != null) ll_default = holder.ll_view.getBackground();
+            int accent = ThemeUtil.isLightThemeUsed(mContext) ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239);
+            GradientDrawable syncButton = new GradientDrawable();
+            syncButton.setColor(accent);
+            syncButton.setCornerRadius(12 * mContext.getResources().getDisplayMetrics().density);
+            holder.ib_row_sync.setBackground(syncButton);
 
             holder.tv_last_sync_result = (TextView) v.findViewById(R.id.sync_task_sync_result_text);
             holder.ll_last_sync = (LinearLayout) v.findViewById(R.id.sync_task_sync_result_view);
@@ -224,7 +234,8 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
         if (o != null) {
             boolean sync_btn_disable=false;
 
-            holder.ll_view.setBackgroundDrawable(ll_default);
+            setCardBackground(holder.ll_view, ThemeUtil.isLightThemeUsed(mContext)
+                    ? Color.rgb(229, 235, 242) : Color.rgb(27, 39, 59));
             //Do not change the background of sync button on right of sync task to make it clear that it is a button.
 //            holder.ib_row_sync.setBackgroundDrawable(ll_default);
 
@@ -253,6 +264,8 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
                 synctp = holder.tv_mtype_move;
             else if (o.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_COPY))
                 synctp = holder.tv_mtype_copy;
+            else if (o.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_RSYNC))
+                synctp = mContext.getString(R.string.msgs_main_sync_list_array_mtype_rsync);
             else if (o.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_SYNC))
                 synctp = holder.tv_mtype_sync;
             else if (o.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_ARCHIVE))
@@ -268,8 +281,8 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
             if (o.isSyncTaskRunning()) {
                 result = tv_status_running;
                 if (ThemeUtil.isLightThemeUsed(mContext))
-                    holder.ll_view.setBackgroundColor(Color.argb(255, 0, 192, 192));
-                else holder.ll_view.setBackgroundColor(Color.argb(255, 0, 128, 128));
+                    setCardBackground(holder.ll_view, Color.argb(255, 0, 192, 192));
+                else setCardBackground(holder.ll_view, Color.argb(255, 0, 128, 128));
             } else {
                 if (o.getLastSyncResult() == SyncHistoryItem.SYNC_STATUS_SUCCESS) {
                     result = tv_status_success;
@@ -398,11 +411,12 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
 
             if (!o.isSyncTaskError()) {
                 if (o.isSyncTestMode()) {
-                    if (ThemeUtil.isLightThemeUsed(mContext)) holder.ll_view.setBackgroundColor(Color.argb(64, 255, 32, 255));
-                    else holder.ll_view.setBackgroundColor(Color.argb(64, 255, 0, 128));
+                    if (ThemeUtil.isLightThemeUsed(mContext)) setCardBackground(holder.ll_view, Color.rgb(239, 215, 239));
+                    else setCardBackground(holder.ll_view, Color.rgb(75, 31, 67));
                 }
             } else {
-                holder.ll_view.setBackgroundColor(Color.argb(64, 255, 0, 0));
+                setCardBackground(holder.ll_view, ThemeUtil.isLightThemeUsed(mContext)
+                        ? Color.rgb(255, 220, 220) : Color.rgb(89, 31, 39));
             }
 
             final int p = position;

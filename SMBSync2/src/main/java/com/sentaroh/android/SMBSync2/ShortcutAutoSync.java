@@ -145,7 +145,7 @@ public class ShortcutAutoSync extends FragmentActivity {
                 }
             });
             if (!mGp.settingSuppressShortcutWarning) {
-                mUtil.showCommonDialog(true, "W", "auto syncを実行しますか？", "", ntfy);
+                mUtil.showCommonDialog(true, "W", "Run automatic sync?", "", ntfy);
             } else {
                 ntfy.notifyToListener(true, null);
             }

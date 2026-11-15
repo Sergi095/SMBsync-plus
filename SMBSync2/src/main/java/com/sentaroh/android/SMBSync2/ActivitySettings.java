@@ -98,10 +98,13 @@ public class ActivitySettings extends PreferenceActivity {
         Context c = getActivityContext();
         mGp= GlobalWorkArea.getGlobalParameters(c);
         SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(c);
-        mCurrentScreenTheme=shared_pref.getString(getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_STANDARD);
+        mCurrentScreenTheme=shared_pref.getString(getString(R.string.settings_screen_theme), SMBSYNC2_SCREEN_THEME_BLACK);
         if (mCurrentScreenTheme.equals(SMBSYNC2_SCREEN_THEME_STANDARD)) setTheme(R.style.Main);
         else if (mCurrentScreenTheme.equals(SMBSYNC2_SCREEN_THEME_LIGHT)) setTheme(R.style.MainLight);
-        else if (mCurrentScreenTheme.equals(SMBSYNC2_SCREEN_THEME_BLACK)) setTheme(R.style.MainBlack);
+        else if (mCurrentScreenTheme.equals(SMBSYNC2_SCREEN_THEME_BLACK)) setTheme(R.style.ModernDark);
+        else if (mCurrentScreenTheme.equals(Constants.SMBSYNC2_SCREEN_THEME_SYSTEM))
+            setTheme((getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                    == Configuration.UI_MODE_NIGHT_YES ? R.style.ModernDark : R.style.MainLight);
 
         mCurrentThemeLangaue=shared_pref.getString(getString(R.string.settings_screen_theme_language), SMBSYNC2_SCREEN_THEME_LANGUAGE_SYSTEM);
 
@@ -401,6 +404,23 @@ public class ActivitySettings extends PreferenceActivity {
             mActivity=getActivity();
             addPreferencesFromResource(R.xml.settings_frag_misc);
 
+            findPreference("settings_app_updates").setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(getActivity(), RepositoryUpdateActivity.class));
+                return true;
+            });
+            Preference updateSource = findPreference("settings_update_source");
+            updateSource.setSummary(RepositoryUpdateActivity.RELEASES_URL);
+            updateSource.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(RepositoryUpdateActivity.RELEASES_URL)));
+                return true;
+            });
+            findPreference("settings_source_code").setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(RepositoryUpdateActivity.REPOSITORY)));
+                return true;
+            });
+
             SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 //            shared_pref.edit().putBoolean(getString(R.string.settings_exit_clean), true).commit();
@@ -458,6 +478,11 @@ public class ActivitySettings extends PreferenceActivity {
                 mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered");
             mActivity=getActivity();
             addPreferencesFromResource(R.xml.settings_frag_smb);
+
+            findPreference("settings_smb_explorer_connections").setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(getActivity(), SmbConnectionsActivity.class));
+                return true;
+            });
 
 
             SharedPreferences shared_pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -627,7 +652,10 @@ public class ActivitySettings extends PreferenceActivity {
                 if (!mCurrentScreenTheme.equals(tid)) {
                     if (tid.equals(SMBSYNC2_SCREEN_THEME_STANDARD)) getActivity().setTheme(R.style.Main);
                     else if (tid.equals(SMBSYNC2_SCREEN_THEME_LIGHT)) getActivity().setTheme(R.style.MainLight);
-                    else if (tid.equals(SMBSYNC2_SCREEN_THEME_BLACK)) getActivity().setTheme(R.style.MainBlack);
+                    else if (tid.equals(SMBSYNC2_SCREEN_THEME_BLACK)) getActivity().setTheme(R.style.ModernDark);
+                    else if (tid.equals(Constants.SMBSYNC2_SCREEN_THEME_SYSTEM))
+                        getActivity().setTheme((c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                                == Configuration.UI_MODE_NIGHT_YES ? R.style.ModernDark : R.style.MainLight);
                     mCurrentScreenTheme=tid;
                     getActivity().finish();
                     Intent intent = new Intent(getActivity(), ActivitySettings.class);

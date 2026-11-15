@@ -1,4 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sync_network_any_connected">Any connected network (Wi-Fi, mobile data, or VPN)</string>
+    <string name="sync_scan_started">Checking source files…</string>
+    <string name="sync_scan_progress">Files checked: %1$d · %2$s</string>
+    <string name="sync_scan_result">Source files checked: %1$d · Copied: %2$d</string>
+    <string name="sync_network_not_connected">No network connection is available.</string>
+    <string name="sync_mobile_vpn_hint">For mobile data, connect to your NAS through a VPN. Do not expose SMB directly to the internet.</string>
+    <string name="smb_setup_connection">NAS CONNECTION</string>
+    <string name="smb_setup_help">Enter your NAS address and share. On mobile data, connect your VPN first.</string>
+    <string name="smb_setup_credentials">SIGN IN</string>
+    <string name="smb_setup_security">SMB signing helps protect authentication traffic. Keep it enabled when your NAS supports it.</string>
+    <string name="smb_setup_more">More connection options ▾</string>
+    <string name="smb_setup_less">Hide connection options ▴</string>
+    <string name="smb_setup_share">SHARE AND FOLDER</string>
+    <string name="smb_browse_nas">Browse NAS folders</string>
+    <string name="sync_task_schedule_after_save">Schedule this task</string>
+    <string name="sync_task_schedule_frequency">Run</string>
+    <string name="sync_task_schedule_daily">Every day</string>
+    <string name="sync_task_schedule_15_minutes">Every 15 minutes</string>
+    <string name="sync_task_schedule_30_minutes">Every 30 minutes</string>
+    <string name="sync_task_schedule_hourly">Every hour</string>
+    <string name="sync_task_schedule_time">At %1$02d:%2$02d</string>
+    <string name="sync_skip_existing_hint">Leave Replace existing destination files off to skip every file already there. Copy mode also keeps destination-only files.</string>
+    <string name="sync_task_page_title">Your workspace</string>
+    <string name="sync_task_page_subtitle">Browse files and saved NAS servers, then choose what to sync.</string>
+    <string name="sync_task_page_explore">Browse files and NAS  →</string>
+    <string name="sync_task_page_add">＋ New sync task</string>
+    <string name="sync_task_quick_title">QUICK SETUP</string>
+    <string name="sync_task_phone_to_nas">Phone → NAS</string>
+    <string name="sync_task_nas_to_phone">NAS → Phone</string>
+    <string name="sync_task_show_advanced">More sync options ▾</string>
+    <string name="sync_task_hide_advanced">Hide sync options ▴</string>
+    <string name="sync_task_advanced_summary">Filters · Network · Existing files</string>
+    <string name="security_biometric_unlock">Allow biometric unlock (password remains available)</string>
+    <string name="security_biometric_prompt_title">Unlock SMBsync+</string>
+    <string name="security_use_password">Use password</string>
+    <string name="nav_files">Files</string>
+    <string name="nav_sync">Sync</string>
+    <string name="nav_activity">Activity</string>
+    <string name="nav_security">Security</string>
+    <string name="nav_more">More</string>
 
 </resources>

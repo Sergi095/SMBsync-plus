@@ -25,12 +25,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +44,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -59,7 +62,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -91,6 +96,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -366,8 +372,8 @@ public class SyncTaskEditor extends DialogFragment {
         final CheckedTextView ctvProcessOverride = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_process_override_delete_file);
         final CheckedTextView ctUseExtendedDirectoryFilter1 = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_use_extended_filter1);
         final CheckedTextView ctUseDirectoryFilterV2 = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_use_directory_filter_v2);
-        final CheckedTextView ctvDeleteFirst = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_delete_first_when_mirror);
         final CheckedTextView ctvEnsureTargetExactMirror = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_ensure_target_is_exact_mirror);
+        final CheckedTextView ctvDeleteFirst = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_delete_first_when_mirror);
         final CheckedTextView ctvRetry = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_retry_if_error_occured);
         final CheckedTextView ctvSyncUseRemoteSmallIoArea = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_use_remote_small_io_area);
         final CheckedTextView ctv_edit_sync_tak_option_do_not_use_rename_when_smb_file_write =
@@ -708,6 +714,10 @@ public class SyncTaskEditor extends DialogFragment {
     }
 
     private String mOpType = "";
+    private boolean mScheduleAfterSave = false;
+    private int mScheduleMode = 0;
+    private int mScheduleHour = 0;
+    private int mScheduleMinute = 0;
     private SyncTaskItem mCurrentSyncTaskItem;
     private NotifyEvent mNotifyComplete = null;
 
@@ -724,6 +734,10 @@ public class SyncTaskEditor extends DialogFragment {
         mTerminateRequired = false;
 //    	mFragmentMgr=fm;
         mOpType = op_type;
+        mScheduleAfterSave = false;
+        mScheduleMode = 0;
+        mScheduleHour = 0;
+        mScheduleMinute = 0;
         mCurrentSyncTaskItem = pli;
         mTaskUtil = pm;
 //    	mUtil=ut;
@@ -909,6 +923,51 @@ public class SyncTaskEditor extends DialogFragment {
         final Button btn_sync_folder_list_share = (Button) dialog.findViewById(R.id.edit_sync_folder_dlg_list_share_btn);
         final EditText et_sync_folder_share_name = (EditText) dialog.findViewById(R.id.edit_sync_folder_dlg_share_name);
         et_sync_folder_share_name.setText(sfev.folder_remote_share);
+
+        Button useSavedConnection = new Button(mContext);
+        useSavedConnection.setText("Use saved SMB connection");
+        LinearLayout hostView = dialog.findViewById(R.id.edit_sync_folder_dlg_smb_host_view);
+        hostView.addView(useSavedConnection, 2,
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+        useSavedConnection.setOnClickListener(view -> {
+            final ArrayList<SmbConnectionStore.Connection> saved;
+            try { saved = SmbConnectionStore.load(mContext); }
+            catch (IOException e) {
+                new AlertDialog.Builder(mContext).setTitle("SMB connections")
+                        .setMessage(e.getMessage()).setPositiveButton("OK", null).show();
+                return;
+            }
+            if (saved.isEmpty()) {
+                new AlertDialog.Builder(mContext).setTitle("No saved SMB connections")
+                        .setMessage("Add a server in Settings → SMB Settings → Explorer SMB connections.")
+                        .setPositiveButton("OK", null).show();
+                return;
+            }
+            String[] labels = new String[saved.size()];
+            for (int i = 0; i < saved.size(); i++) {
+                SmbConnectionStore.Connection connection = saved.get(i);
+                labels[i] = connection.name.isEmpty() ? connection.host : connection.name + " · " + connection.host;
+            }
+            new AlertDialog.Builder(mContext).setTitle("Choose SMB connection")
+                    .setItems(labels, (choice, index) -> {
+                        SmbConnectionStore.Connection connection = saved.get(index);
+                        et_remote_host.setText(connection.host);
+                        et_sync_folder_port.setText(connection.port);
+                        ctv_sync_folder_use_port.setChecked(!connection.port.isEmpty());
+                        CommonDialog.setViewEnabled(getActivity(), et_sync_folder_port, !connection.port.isEmpty());
+                        et_sync_folder_user.setText(connection.user);
+                        et_sync_folder_pswd.setText(connection.password);
+                        et_sync_folder_domain.setText(connection.domain);
+                        boolean credentials = !connection.user.isEmpty() || !connection.password.isEmpty();
+                        ctv_sync_folder_use_pswd.setChecked(credentials);
+                        CommonDialog.setViewEnabled(getActivity(), et_sync_folder_user, credentials);
+                        CommonDialog.setViewEnabled(getActivity(), et_sync_folder_pswd, credentials);
+                        ctv_sync_folder_smb_ipc_enforced.setChecked(connection.signing);
+                        setSpinnerSyncFolderSmbProto(sti, sp_sync_folder_smb_proto, connection.protocol);
+                        checkSyncFolderValidation(dialog, sfev);
+                    }).show();
+        });
 
         et_remote_host.addTextChangedListener(new TextWatcher() {
             @Override
@@ -2109,6 +2168,15 @@ public class SyncTaskEditor extends DialogFragment {
         }
 
         setSyncFolderSmbListener(dialog, sti, sfev, ntfy);
+        final Button moreConnectionOptions = dialog.findViewById(R.id.edit_sync_folder_dlg_more_connection_options);
+        final View advancedConnectionOptions = dialog.findViewById(R.id.edit_sync_folder_dlg_advanced_connection_options);
+        if (moreConnectionOptions != null && advancedConnectionOptions != null) {
+            moreConnectionOptions.setOnClickListener(v -> {
+                boolean opening = advancedConnectionOptions.getVisibility() != View.VISIBLE;
+                advancedConnectionOptions.setVisibility(opening ? View.VISIBLE : View.GONE);
+                moreConnectionOptions.setText(opening ? R.string.smb_setup_less : R.string.smb_setup_more);
+            });
+        }
         setSyncFolderInternalListener(dialog, sti, sfev, ntfy);
         setSyncFolderSdcardListener(dialog, sti, sfev, ntfy);
         setSyncFolderUsbListener(dialog, sti, sfev, ntfy);
@@ -2392,13 +2460,13 @@ public class SyncTaskEditor extends DialogFragment {
             ll_internal_keyword_view.setVisibility(LinearLayout.VISIBLE);
             ll_sdcard_keyword_view.setVisibility(LinearLayout.VISIBLE);
             ll_usb_keyword_view.setVisibility(LinearLayout.VISIBLE);
-            ll_smb_keyword_view.setVisibility(LinearLayout.VISIBLE);
+            ll_smb_keyword_view.setVisibility(LinearLayout.GONE);
             ll_zip_keyword_view.setVisibility(LinearLayout.GONE);
         } else {
             ll_internal_keyword_view.setVisibility(LinearLayout.VISIBLE);
             ll_sdcard_keyword_view.setVisibility(LinearLayout.VISIBLE);
             ll_usb_keyword_view.setVisibility(LinearLayout.VISIBLE);
-            ll_smb_keyword_view.setVisibility(LinearLayout.VISIBLE);
+            ll_smb_keyword_view.setVisibility(LinearLayout.GONE);
             ll_zip_keyword_view.setVisibility(LinearLayout.VISIBLE);
         }
         if (sel.equals(mContext.getString(R.string.msgs_main_sync_profile_dlg_sync_folder_type_smb))) {
@@ -3504,6 +3572,7 @@ public class SyncTaskEditor extends DialogFragment {
         adapterSyncOption.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_copy));
         adapterSyncOption.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_move));
         adapterSyncOption.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_archive));
+        adapterSyncOption.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_rsync));
         if (mGp.debuggable) adapterSyncOption.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_sync));
 
         int sel=0;
@@ -3511,7 +3580,8 @@ public class SyncTaskEditor extends DialogFragment {
         else if (prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_COPY)) sel=1;
         else if (prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_MOVE)) sel=2;
         else if (prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_ARCHIVE)) sel=3;
-		else if (mGp.debuggable && prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_SYNC)) sel=4;
+        else if (prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_RSYNC)) sel=4;
+		else if (mGp.debuggable && prof_syncopt.equals(SyncTaskItem.SYNC_TASK_TYPE_SYNC)) sel=5;
 
         spinnerSyncOption.setSelection(sel);
         adapterSyncOption.notifyDataSetChanged();
@@ -3593,6 +3663,7 @@ public class SyncTaskEditor extends DialogFragment {
 //        adapter.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_wifi_option_wifi_connect_specific_ap));
         adapter.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_wifi_option_wifi_connect_private_address));
         adapter.add(mContext.getString(R.string.msgs_main_sync_profile_dlg_wifi_option_wifi_connect_specific_address));
+        adapter.add(mContext.getString(R.string.sync_network_any_connected));
 
         int sel = 0;
         if (cv.equals(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_OFF)) sel = 0;
@@ -3600,6 +3671,7 @@ public class SyncTaskEditor extends DialogFragment {
         else if (cv.equals(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_AP)) sel = 2;
         else if (cv.equals(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_CONNECT_PRIVATE_ADDR)) sel = 2;
         else if (cv.equals(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_CONNECT_SPECIFIC_ADDR)) sel = 3;
+        else if (cv.equals(SyncTaskItem.SYNC_WIFI_STATUS_ANY_NETWORK)) sel = 4;
 
         spinner.setSelection(sel);
 
@@ -3686,6 +3758,20 @@ public class SyncTaskEditor extends DialogFragment {
         // カスタムダイアログの生成
         mDialog.setContentView(R.layout.edit_sync_task_dlg);
 
+        // Keep Mirror's deletion choice beside the sync mode. It is a normal
+        // task behavior, so it should not require opening technical options.
+        ViewGroup syncTypeRow = (ViewGroup) mDialog.findViewById(R.id.edit_sync_task_sync_type).getParent();
+        ViewGroup taskForm = (ViewGroup) syncTypeRow.getParent();
+        for (int id : new int[]{R.id.edit_sync_task_option_ll_sync_delete_first_when_mirror,
+                R.id.edit_sync_task_option_ll_sync_ensure_target_is_exact_mirror}) {
+            View optionRow = mDialog.findViewById(id);
+            ((ViewGroup) optionRow.getParent()).removeView(optionRow);
+            taskForm.addView(optionRow, taskForm.indexOfChild(syncTypeRow) + 1,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+            syncTypeRow = (ViewGroup) optionRow;
+        }
+
         LinearLayout ll_dlg_view = (LinearLayout) mDialog.findViewById(R.id.edit_sync_task_dlg_view);
 //        ll_dlg_view.setBackgroundColor(mGp.themeColorList.title_background_color);
 
@@ -3712,6 +3798,51 @@ public class SyncTaskEditor extends DialogFragment {
 //        master_folder_icon.bringToFront();
         final Button target_folder_info = (Button) mDialog.findViewById(R.id.edit_sync_task_target_folder_info_btn);
         final ImageView target_folder_icon = (ImageView) mDialog.findViewById(R.id.edit_sync_task_target_folder_info_icon);
+        final Button advancedToggle = mDialog.findViewById(R.id.edit_sync_task_advanced_toggle);
+        final LinearLayout advancedContent = mDialog.findViewById(R.id.edit_sync_task_advanced_content);
+        advancedToggle.setOnClickListener(v -> {
+            boolean open = advancedContent.getVisibility() != View.VISIBLE;
+            advancedContent.setVisibility(open ? View.VISIBLE : View.GONE);
+            advancedToggle.setText(open ? R.string.sync_task_hide_advanced : R.string.sync_task_show_advanced);
+        });
+        if (mGp.applicationTheme == R.style.ModernDark) {
+            ll_dlg_view.setBackgroundColor(Color.rgb(8, 16, 31));
+            title_view.setBackgroundColor(Color.rgb(27, 39, 59));
+            dlg_title.setTextColor(Color.rgb(41, 197, 239));
+            dlg_title_sub.setTextColor(Color.rgb(160, 178, 195));
+            float radius = 12 * getResources().getDisplayMetrics().density;
+            for (Button folderButton : new Button[]{master_folder_info, target_folder_info}) {
+                GradientDrawable background = new GradientDrawable();
+                background.setColor(Color.rgb(27, 39, 59));
+                background.setCornerRadius(radius);
+                folderButton.setBackground(background);
+                folderButton.setTextColor(Color.WHITE);
+                folderButton.setMinHeight((int) (56 * getResources().getDisplayMetrics().density));
+            }
+            GradientDrawable swapBackground = new GradientDrawable();
+            swapBackground.setColor(Color.rgb(27, 39, 59));
+            swapBackground.setCornerRadius(radius);
+            swap_master_target.setBackground(swapBackground);
+            swap_master_target.setTextColor(Color.rgb(41, 197, 239));
+            advancedToggle.setTextColor(Color.rgb(41, 197, 239));
+            TextView advancedSummary = mDialog.findViewById(R.id.edit_sync_task_advanced_summary);
+            advancedSummary.setTextColor(Color.rgb(160, 178, 195));
+            GradientDrawable advancedBackground = new GradientDrawable();
+            advancedBackground.setColor(Color.rgb(27, 39, 59));
+            advancedBackground.setCornerRadius(radius);
+            advancedToggle.setBackground(advancedBackground);
+            Button cancelButton = mDialog.findViewById(R.id.edit_profile_sync_dlg_btn_cancel);
+            cancelButton.setTextColor(Color.rgb(160, 178, 195));
+            btn_ok.setTextColor(Color.rgb(41, 197, 239));
+            GradientDrawable cancelBackground = new GradientDrawable();
+            cancelBackground.setColor(Color.rgb(27, 39, 59));
+            cancelBackground.setCornerRadius(radius);
+            cancelButton.setBackground(cancelBackground);
+            GradientDrawable okBackground = new GradientDrawable();
+            okBackground.setColor(Color.rgb(27, 39, 59));
+            okBackground.setCornerRadius(radius);
+            btn_ok.setBackground(okBackground);
+        }
 //        target_folder_icon.bringToFront();
 
         final EditText et_sync_main_task_name = (EditText) mDialog.findViewById(R.id.edit_sync_task_task_name);
@@ -3730,12 +3861,62 @@ public class SyncTaskEditor extends DialogFragment {
         } else if (type.equals("ADD")) {
             dlg_title.setText(mContext.getString(R.string.msgs_add_sync_profile));
             dlg_title_sub.setVisibility(TextView.GONE);
-            n_sti.setSyncOptionWifiStatusOption(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_OFF);
+            if (!n_sti.getSyncOptionWifiStatusOption().equals(SyncTaskItem.SYNC_WIFI_STATUS_ANY_NETWORK))
+                n_sti.setSyncOptionWifiStatusOption(SyncTaskItem.SYNC_WIFI_STATUS_WIFI_OFF);
         }
         final CheckedTextView ctv_auto = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_ctv_auto);
         CommonUtilities.setCheckedTextView(ctv_auto);
         ctv_auto.setChecked(n_sti.isSyncTaskAuto());
         setCtvListenerForEditSyncTask(ctv_auto, type, n_sti, dlg_msg);
+        if (type.equals("ADD") || type.equals("COPY")) {
+            CheckBox scheduleAfterSave = new CheckBox(mContext);
+            scheduleAfterSave.setText(R.string.sync_task_schedule_after_save);
+            scheduleAfterSave.setChecked(mScheduleAfterSave);
+            ViewGroup parent = (ViewGroup) ctv_auto.getParent();
+            parent.addView(scheduleAfterSave, parent.indexOfChild(ctv_auto) + 1,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            LinearLayout scheduleOptions = new LinearLayout(mContext);
+            scheduleOptions.setOrientation(LinearLayout.VERTICAL);
+            scheduleOptions.setPadding(48, 0, 48, 16);
+            TextView frequencyLabel = new TextView(mContext);
+            frequencyLabel.setText(R.string.sync_task_schedule_frequency);
+            scheduleOptions.addView(frequencyLabel);
+            Spinner frequency = new Spinner(mContext);
+            ArrayAdapter<String> frequencyAdapter = new ArrayAdapter<>(mContext,
+                    android.R.layout.simple_spinner_item, new String[]{
+                    mContext.getString(R.string.sync_task_schedule_daily),
+                    mContext.getString(R.string.sync_task_schedule_15_minutes),
+                    mContext.getString(R.string.sync_task_schedule_30_minutes),
+                    mContext.getString(R.string.sync_task_schedule_hourly)});
+            frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            frequency.setAdapter(frequencyAdapter);
+            scheduleOptions.addView(frequency);
+            Button scheduleTime = new Button(mContext);
+            scheduleTime.setText(String.format(Locale.US, mContext.getString(R.string.sync_task_schedule_time),
+                    mScheduleHour, mScheduleMinute));
+            scheduleOptions.addView(scheduleTime);
+            frequency.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override public void onItemSelected(AdapterView<?> adapter, View view, int position, long id) {
+                    mScheduleMode = position;
+                    scheduleTime.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
+                }
+                @Override public void onNothingSelected(AdapterView<?> adapter) { }
+            });
+            scheduleTime.setOnClickListener(view -> new TimePickerDialog(mContext,
+                    (picker, hour, minute) -> {
+                        mScheduleHour = hour;
+                        mScheduleMinute = minute;
+                        scheduleTime.setText(String.format(Locale.US,
+                                mContext.getString(R.string.sync_task_schedule_time), hour, minute));
+                    }, mScheduleHour, mScheduleMinute, true).show());
+            scheduleOptions.setVisibility(View.GONE);
+            scheduleAfterSave.setOnCheckedChangeListener((button, checked) -> {
+                mScheduleAfterSave = checked;
+                scheduleOptions.setVisibility(checked ? View.VISIBLE : View.GONE);
+            });
+            parent.addView(scheduleOptions, parent.indexOfChild(scheduleAfterSave) + 1,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
 
         final Spinner spinnerSyncType = (Spinner) mDialog.findViewById(R.id.edit_sync_task_sync_type);
         setSpinnerSyncTaskType(spinnerSyncType, n_sti);
@@ -4170,12 +4351,18 @@ public class SyncTaskEditor extends DialogFragment {
         ctvConfirmOverride.setChecked(n_sti.isSyncConfirmOverrideOrDelete());
         setCtvListenerForEditSyncTask(ctvConfirmOverride, type, n_sti, dlg_msg);
 
+        final CheckedTextView ctvEnsureTargetExactMirror = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_ensure_target_is_exact_mirror);
         final CheckedTextView ctvDeleteFirst = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_delete_first_when_mirror);
         CommonUtilities.setCheckedTextView(ctvDeleteFirst);
         ctvDeleteFirst.setChecked(n_sti.isSyncOptionDeleteFirstWhenMirror());
-        setCtvListenerForEditSyncTask(ctvDeleteFirst, type, n_sti, dlg_msg);
+        ctvDeleteFirst.setOnClickListener(v -> {
+            ctvDeleteFirst.setChecked(!ctvDeleteFirst.isChecked());
+            LinearLayout exactMirror = mDialog.findViewById(R.id.edit_sync_task_option_ll_sync_ensure_target_is_exact_mirror);
+            exactMirror.setVisibility(ctvDeleteFirst.isChecked() ? View.VISIBLE : View.GONE);
+            if (!ctvDeleteFirst.isChecked()) ctvEnsureTargetExactMirror.setChecked(false);
+            checkSyncTaskOkButtonEnabled(mDialog, type, n_sti, dlg_msg);
+        });
 
-        final CheckedTextView ctvEnsureTargetExactMirror = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_sync_ensure_target_is_exact_mirror);
         CommonUtilities.setCheckedTextView(ctvEnsureTargetExactMirror);
         ctvEnsureTargetExactMirror.setChecked(n_sti.isSyncOptionEnsureTargetIsExactMirror());
 //        setSpinnerSyncTaskType(spinnerSyncType, n_sti);
@@ -4942,7 +5129,11 @@ public class SyncTaskEditor extends DialogFragment {
                         if (mNotifyComplete != null) mNotifyComplete.notifyToListener(true, null);
                         SyncTaskUtil.saveSyncTaskListToFile(mGp, mContext, mUtil, false, "", "", mGp.syncTaskList, false);
                         SyncTaskUtil.autosaveSyncTaskList(mGp, getActivity(), mUtil, mCommonDlg, mGp.syncTaskList);
+                        ActivityMain mainActivity = (ActivityMain) getActivity();
                         mFragment.dismissAllowingStateLoss();
+                        if ((type.equals("ADD") || type.equals("COPY")) && mScheduleAfterSave)
+                            mainActivity.createScheduleForNewTask(new_stli.getSyncTaskName(),
+                                    mScheduleMode, mScheduleHour, mScheduleMinute);
                         mUtil.addDebugMsg(1,"I","editSyncTask edit saved, type="+type+", task="+new_stli.getSyncTaskName());
                         ((ActivityMain)getActivity()).refreshOptionMenu();
 
@@ -5201,7 +5392,9 @@ public class SyncTaskEditor extends DialogFragment {
         nstli.setSyncOptionUseExtendedDirectoryFilter1(ctUseExtendedDirectoryFilter1.isChecked());
         nstli.setsyncOptionUseDirectoryFilterV2(ctUseDirectoryFilterV2.isChecked());
 
-        String wifi_sel = Integer.toString(spinnerSyncWifiStatus.getSelectedItemPosition());
+        String wifi_sel = spinnerSyncWifiStatus.getSelectedItemPosition() == 4
+                ? SyncTaskItem.SYNC_WIFI_STATUS_ANY_NETWORK
+                : Integer.toString(spinnerSyncWifiStatus.getSelectedItemPosition());
 
         // If "Specific AP" is set from previous versions, set to new default end remove status error
         if (wifi_sel.equals("2")) wifi_sel=SyncTaskItem.SYNC_WIFI_STATUS_WIFI_CONNECT_PRIVATE_ADDR;
@@ -5341,6 +5534,8 @@ public class SyncTaskEditor extends DialogFragment {
             n_stli.setSyncTaskType(SyncTaskItem.SYNC_TASK_TYPE_MIRROR);
         else if (so.equals(mContext.getString(R.string.msgs_main_sync_profile_dlg_copy)))
             n_stli.setSyncTaskType(SyncTaskItem.SYNC_TASK_TYPE_COPY);
+        else if (so.equals(mContext.getString(R.string.msgs_main_sync_profile_dlg_rsync)))
+            n_stli.setSyncTaskType(SyncTaskItem.SYNC_TASK_TYPE_RSYNC);
         else if (so.equals(mContext.getString(R.string.msgs_main_sync_profile_dlg_move)))
             n_stli.setSyncTaskType(SyncTaskItem.SYNC_TASK_TYPE_MOVE);
         else if (so.equals(mContext.getString(R.string.msgs_main_sync_profile_dlg_sync)))
@@ -5400,6 +5595,7 @@ public class SyncTaskEditor extends DialogFragment {
 //        final CheckedTextView ctvSyncHiddenFile = (CheckedTextView) dialog.findViewById(R.id.edit_sync_task_option_ctv_sync_hidden_file);
 
         final LinearLayout ll_ctvProcessOverride = (LinearLayout) mDialog.findViewById(R.id.edit_sync_task_option_ll_process_override_delete_file);
+        final CheckedTextView ctvProcessOverride = (CheckedTextView) mDialog.findViewById(R.id.edit_sync_task_option_ctv_process_override_delete_file);
 //        final LinearLayout ll_ctvConfirmOverride = (LinearLayout) mDialog.findViewById(R.id.edit_sync_task_option_ll_confirm_override_delete_file);
 
 //        final CheckedTextView ctUseExtendedDirectoryFilter1 = (CheckedTextView) dialog.findViewById(R.id.edit_sync_task_option_ctv_sync_use_extended_filter1);
@@ -5451,11 +5647,13 @@ public class SyncTaskEditor extends DialogFragment {
             ctv_sync_remove_master_if_empty.setChecked(false);
         }
 
-        if (n_sti.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_MIRROR)) ll_sync_delete_first_when_mirror.setVisibility(CheckedTextView.VISIBLE);
-        else ll_sync_delete_first_when_mirror.setVisibility(CheckedTextView.GONE);
-
-        if (n_sti.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_MIRROR)) ll_sync_ensure_target_is_exact_mirror.setVisibility(CheckedTextView.VISIBLE);
-        else ll_sync_ensure_target_is_exact_mirror.setVisibility(CheckedTextView.GONE);
+        boolean mirrorMode = n_sti.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_MIRROR);
+        ll_sync_delete_first_when_mirror.setVisibility(mirrorMode ? CheckedTextView.VISIBLE : CheckedTextView.GONE);
+        ll_sync_ensure_target_is_exact_mirror.setVisibility(mirrorMode && ctvDeleteFirst.isChecked()
+                ? CheckedTextView.VISIBLE : CheckedTextView.GONE);
+        if (n_sti.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_RSYNC)) {
+            ctvProcessOverride.setChecked(false);
+        }
 
         if (!n_sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_INTERNAL)) {
             ll_ctvUseSmbsyncLastMod.setVisibility(LinearLayout.GONE);
@@ -5480,7 +5678,8 @@ public class SyncTaskEditor extends DialogFragment {
         } else {
             ll_file_filter.setVisibility(LinearLayout.VISIBLE);
 
-            ll_ctvProcessOverride.setVisibility(CheckedTextView.VISIBLE);
+            ll_ctvProcessOverride.setVisibility(n_sti.getSyncTaskType().equals(SyncTaskItem.SYNC_TASK_TYPE_RSYNC)
+                    ? CheckedTextView.GONE : CheckedTextView.VISIBLE);
 //            ll_ctvConfirmOverride.setVisibility(CheckedTextView.VISIBLE);
 
             if (!n_sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_ZIP)) ll_ctvDoNotResetFileLastMod.setVisibility(CheckedTextView.VISIBLE);

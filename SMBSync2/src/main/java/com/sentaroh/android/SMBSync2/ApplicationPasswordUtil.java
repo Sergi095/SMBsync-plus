@@ -24,11 +24,13 @@ package com.sentaroh.android.SMBSync2;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.hardware.biometrics.BiometricPrompt;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -48,10 +50,12 @@ import com.sentaroh.android.Utilities.NotifyEvent;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.sentaroh.android.SMBSync2.Constants.SMBSYNC2_KEY_STORE_ALIAS;
 
 public class ApplicationPasswordUtil {
+    public static final String BIOMETRIC_UNLOCK_KEY = "security_biometric_unlock_enabled";
 
     final static private long SMBSYNC2_APPLICATION_PASSWORD_VALIDITY_PERIOD =30*60*1000;
 
@@ -95,6 +99,12 @@ public class ApplicationPasswordUtil {
 
     static public void applicationPasswordAuthentication(final GlobalParameters gp, final Activity mActivity, final FragmentManager fm,
                                                          final CommonUtilities mUtil, boolean force_auth, final NotifyEvent notify_check, int resource_id) {
+        applicationPasswordAuthentication(gp, mActivity, fm, mUtil, force_auth, notify_check, resource_id, true);
+    }
+
+    private static void applicationPasswordAuthentication(final GlobalParameters gp, final Activity mActivity, final FragmentManager fm,
+                                                          final CommonUtilities mUtil, boolean force_auth, final NotifyEvent notify_check,
+                                                          int resource_id, boolean offerBiometric) {
         if (!isAuthRequired(gp, resource_id)) {
             notify_check.notifyToListener(true,null);
             return;
@@ -112,6 +122,42 @@ public class ApplicationPasswordUtil {
                     return;
                 }
                 gp.appPasswordAuthValidated=false;
+            }
+        }
+
+        if (offerBiometric && Build.VERSION.SDK_INT >= 28 &&
+                PreferenceManager.getDefaultSharedPreferences(mActivity).getBoolean(BIOMETRIC_UNLOCK_KEY, false)) {
+            final AtomicBoolean finished = new AtomicBoolean(false);
+            final Runnable usePassword = () -> {
+                if (finished.compareAndSet(false, true)) {
+                    applicationPasswordAuthentication(gp, mActivity, fm, mUtil, force_auth, notify_check, resource_id, false);
+                }
+            };
+            try {
+                BiometricPrompt prompt = new BiometricPrompt.Builder(mActivity)
+                        .setTitle(mActivity.getString(R.string.security_biometric_prompt_title))
+                        .setNegativeButton(mActivity.getString(R.string.security_use_password),
+                                mActivity.getMainExecutor(), (dialog, which) -> usePassword.run())
+                        .build();
+                prompt.authenticate(new android.os.CancellationSignal(), mActivity.getMainExecutor(),
+                        new BiometricPrompt.AuthenticationCallback() {
+                            @Override
+                            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                                if (finished.compareAndSet(false, true)) {
+                                    gp.appPasswordAuthValidated = true;
+                                    gp.appPasswordAuthLastTime = System.currentTimeMillis();
+                                    if (notify_check != null) notify_check.notifyToListener(true, null);
+                                }
+                            }
+
+                            @Override
+                            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                                usePassword.run();
+                            }
+                        });
+                return;
+            } catch (RuntimeException error) {
+                // Biometric hardware or enrollment may be unavailable. Keep password access.
             }
         }
 

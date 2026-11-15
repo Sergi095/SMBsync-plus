@@ -214,9 +214,32 @@
 
                </RelativeLayout>
 
-               <include layout="@layout/edit_sync_task_dlg_filter" />
+               <Button
+                   android:id="@+id/edit_sync_task_advanced_toggle"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_marginTop="16dp"
+                   android:text="@string/sync_task_show_advanced"
+                   android:textAllCaps="false" />
 
-               <include layout="@layout/edit_sync_task_dlg_options" />
+               <TextView
+                   android:id="@+id/edit_sync_task_advanced_summary"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:gravity="center"
+                   android:layout_marginTop="4dp"
+                   android:text="@string/sync_task_advanced_summary"
+                   android:textAppearance="?android:attr/textAppearanceSmall" />
+
+               <LinearLayout
+                   android:id="@+id/edit_sync_task_advanced_content"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="vertical"
+                   android:visibility="gone">
+                   <include layout="@layout/edit_sync_task_dlg_filter" />
+                   <include layout="@layout/edit_sync_task_dlg_options" />
+               </LinearLayout>
            </LinearLayout>
        </ScrollView>
 

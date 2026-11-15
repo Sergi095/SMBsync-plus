@@ -177,6 +177,9 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
             holder.tv_seq = (TextView) v.findViewById(R.id.sync_history_list_view_seq);
             holder.tv_error = (TextView) v.findViewById(R.id.sync_history_list_view_error_text);
             holder.ll_count = (LinearLayout) v.findViewById(R.id.sync_history_list_view_count);
+            holder.tv_checked = new TextView(mContext);
+            holder.tv_checked.setTextAppearance(mContext, android.R.style.TextAppearance_Small);
+            holder.ll_count.addView(holder.tv_checked);
             holder.ll_main = (LinearLayout) v.findViewById(R.id.sync_history_list_view);
             holder.tv_mode = (TextView) v.findViewById(R.id.sync_history_list_view_mode);
             holder.tv_et = (TextView) v.findViewById(R.id.sync_history_list_view_elapsed_time);
@@ -244,6 +247,9 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
 
                 holder.tv_cnt_copied.setText(Integer.toString(o.sync_result_no_of_copied));
                 holder.tv_cnt_deleted.setText(Integer.toString(o.sync_result_no_of_deleted));
+                holder.tv_checked.setVisibility(o.sync_result_no_of_checked >= 0 ? TextView.VISIBLE : TextView.GONE);
+                if (o.sync_result_no_of_checked >= 0)
+                    holder.tv_checked.setText("  ·  Checked " + o.sync_result_no_of_checked);
 //            	holder.tv_cnt_ignored.setText(Integer.toString(o.sync_result_no_of_ignored));
 //            	holder.tv_cnt_retry.setText(Integer.toString(o.sync_result_no_of_retry));
 
@@ -287,7 +293,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
 
     static class ViewHolder {
         CheckBox cb_sel;
-        TextView tv_date, tv_time, tv_prof, tv_status, tv_cnt_copied, tv_cnt_deleted;
+        TextView tv_date, tv_time, tv_prof, tv_status, tv_cnt_copied, tv_cnt_deleted, tv_checked;
         TextView tv_error, tv_seq, tv_req, tv_mode;
         TextView tv_et;
         TextView tv_tr;

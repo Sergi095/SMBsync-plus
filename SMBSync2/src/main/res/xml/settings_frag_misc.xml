@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="@string/settings_misc_title">
+        <PreferenceScreen
+            android:key="settings_app_updates"
+            android:title="App updates"
+            android:summary="Check for a signed SMBsync+ APK from your GitHub repository" />
+        <PreferenceScreen
+            android:key="settings_update_source"
+            android:title="Update source"
+            android:summary="GitHub Releases" />
+        <PreferenceScreen
+            android:key="settings_source_code"
+            android:title="Source code and licenses"
+            android:summary="SMBsync+ source, upstream credit, and open source notices" />
         <CheckBoxPreference
             android:key="settings_exit_clean"
             android:title="@string/settings_exit_clean_title"

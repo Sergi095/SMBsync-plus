@@ -2,6 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/settings_smb_title">
         <PreferenceScreen
+            android:key="settings_smb_explorer_connections"
+            android:title="Explorer SMB connections"
+            android:summary="Add and manage saved servers for Files" />
+        <PreferenceScreen
             android:key="settings_smb_set_default_value"
             android:title="@string/settings_smb_set_default_value_text"/>
         <ListPreference

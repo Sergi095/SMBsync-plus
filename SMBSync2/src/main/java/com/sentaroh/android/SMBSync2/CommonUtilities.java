@@ -880,6 +880,9 @@ public final class CommonUtilities {
                                 if (l_array.length >= 16) {
                                     hli.sync_result_file_path = l_array[15];
                                 }
+                                if (l_array.length >= 17) {
+                                    hli.sync_result_no_of_checked = Long.parseLong(l_array[16]);
+                                }
                             }
                             hl.add(hli);
                         } catch (Exception e) {
@@ -974,7 +977,8 @@ public final class CommonUtilities {
                                 .append(shli.sync_transfer_speed).append("\u0001")                          //12
                                 .append(" ").append("\u0001")                                               //13 Dummy
                                 .append(lfp).append("\u0001")                                               //14
-                                .append(shli.sync_result_file_path)                                         //15
+                                .append(shli.sync_result_file_path).append("\u0001")                   //15
+                                .append(shli.sync_result_no_of_checked)                                   //16
                                 .append("\n");
 
                         bw.append(sb_buf.toString());

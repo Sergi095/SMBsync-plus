@@ -9,11 +9,101 @@
 
 <!--    <include layout="@layout/divider_line3" />-->
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp">
+        <TextView
+            android:id="@+id/sync_task_page_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_task_page_title"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/sync_task_page_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/sync_task_page_subtitle"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <Button
+            android:id="@+id/sync_task_page_explore_button"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="16dp"
+            android:drawableLeft="@drawable/explorer_folder"
+            android:drawablePadding="12dp"
+            android:paddingLeft="16dp"
+            android:gravity="center_vertical"
+            android:text="@string/sync_task_page_explore"
+            android:textAllCaps="false"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/sync_task_page_add_button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/sync_task_page_add"
+            android:textAllCaps="false"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="10dp">
+        <TextView
+            android:id="@+id/sync_task_quick_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_task_quick_title"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/sync_task_phone_to_nas"
+                android:layout_width="0dp"
+                android:layout_height="88dp"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/ic_32_mobile"
+                android:drawablePadding="5dp"
+                android:gravity="center"
+                android:text="@string/sync_task_phone_to_nas"
+                android:textAllCaps="false" />
+            <Button
+                android:id="@+id/sync_task_nas_to_phone"
+                android:layout_width="0dp"
+                android:layout_height="88dp"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/ic_32_server"
+                android:drawablePadding="5dp"
+                android:gravity="center"
+                android:text="@string/sync_task_nas_to_phone"
+                android:textAllCaps="false" />
+        </LinearLayout>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/main_sync_task_view_empty_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="32dp"
+        android:padding="16dp"
         android:visibility="gone"
         android:text="@string/msgs_main_sync_task_press_add_button_to_create_new_sync_task"
         android:textAppearance="?android:attr/textAppearanceMedium"

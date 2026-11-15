@@ -29,8 +29,8 @@ import com.sentaroh.android.Utilities.ThemeUtil;
 public class Constants {
 
 	public static final String APPLICATION_TAG="SMBSync2";
-	public static final String PACKAGE_NAME="com.sentaroh.android."+APPLICATION_TAG;
-	public static final String APP_SPECIFIC_DIRECTORY="Android/data/com.sentaroh.android."+APPLICATION_TAG;
+	public static final String PACKAGE_NAME=BuildConfig.APPLICATION_ID;
+	public static final String APP_SPECIFIC_DIRECTORY="Android/data/"+BuildConfig.APPLICATION_ID;
 	public static long SERIALIZABLE_NUMBER=1L;
 	public static final String LOG_FILE_NAME=APPLICATION_TAG+"_log";
 
@@ -166,6 +166,7 @@ public class Constants {
     public static final String SMBSYNC2_SCREEN_THEME_STANDARD = String.valueOf(ThemeUtil.THEME_DEFAULT);
     public static final String SMBSYNC2_SCREEN_THEME_LIGHT = String.valueOf(ThemeUtil.THEME_LIGHT);
     public static final String SMBSYNC2_SCREEN_THEME_BLACK = String.valueOf(ThemeUtil.THEME_BLACK);
+    public static final String SMBSYNC2_SCREEN_THEME_SYSTEM = "3";
 
     public static final String SMBSYNC2_SCREEN_THEME_LANGUAGE_SYSTEM = "0";
     public static final String SMBSYNC2_SCREEN_THEME_LANGUAGE_INIT = "-99";//ensure onStartSettingScreenThemeLanguageValue is assigned language value only at first app start and when language change by user

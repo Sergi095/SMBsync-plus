@@ -279,8 +279,7 @@ public class FileLastModifiedTime {
         boolean result = false;
 //        File lf = new File(lmp + "/" + "SMBSyncLastModifiedTest.temp");
 //        File dir = new File(lmp + "/");
-        File lf = new File(lmp + "/Android/data/com.sentaroh.android.SMBSync2/files/SMBSyncLastModifiedTest.temp");
-//        File dir = new File(lmp + "/Android/data/com.sentaroh.android.SMBSync2/files");
+        File lf = new File(lmp + "/" + Constants.APP_SPECIFIC_DIRECTORY + "/files/SMBSyncLastModifiedTest.temp");
         try {
             if (lf.exists()) lf.delete();
             lf.createNewFile();
