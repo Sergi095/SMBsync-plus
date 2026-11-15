@@ -260,7 +260,7 @@ public class SyncThread extends Thread {
             listStorageInfo();
 
 //			showMsg(stwa,false, "","I","","",mStwa.context.getString(R.string.msgs_mirror_task_started));
-            NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.ic_48_smbsync_run_anim, R.drawable.ic_48_smbsync_run);
+            NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.modern_notification, R.drawable.modern_notification);
 
             loadLocalFileLastModList();
 
@@ -420,7 +420,7 @@ public class SyncThread extends Thread {
 
             saveLocalFileLastModList();
 
-            NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.ic_48_smbsync_wait, R.drawable.ic_48_smbsync_wait);
+            NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.modern_notification, R.drawable.modern_notification);
             NotificationUtil.reShowOngoingMsg(mGp, mStwa.util);
 
             mGp.syncThreadRequestID = "";
@@ -976,7 +976,7 @@ public class SyncThread extends Thread {
                 @Override
                 public void uncaughtException(Thread thread, Throwable ex) {
                     Thread.currentThread().setUncaughtExceptionHandler(defaultUEH);
-                    NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.ic_48_smbsync_wait, R.drawable.ic_48_smbsync_wait);
+                    NotificationUtil.setNotificationIcon(mGp, mStwa.util, R.drawable.modern_notification, R.drawable.modern_notification);
                     ex.printStackTrace();
                     StackTraceElement[] st = ex.getStackTrace();
                     String st_msg = "";

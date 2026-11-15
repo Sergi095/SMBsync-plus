@@ -203,7 +203,7 @@ public class GlobalParameters extends CommonGlobalParms {
 
     public NotificationManager notificationManager = null;
     public boolean notificationEnabled = true;
-    public int notificationSmallIcon = R.drawable.ic_48_smbsync_wait;
+    public int notificationSmallIcon = R.drawable.modern_notification;
     public Notification notification = null;
     public Builder notificationBuilder = null;
     public BigTextStyle notificationBigTextStyle = null;

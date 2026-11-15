@@ -26,6 +26,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +41,7 @@ import android.widget.TextView;
 
 import com.sentaroh.android.Utilities.NotifyEvent;
 import com.sentaroh.android.Utilities.ThemeColorList;
+import com.sentaroh.android.Utilities.ThemeUtil;
 
 import java.util.ArrayList;
 
@@ -203,10 +206,21 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
 
         if (o != null) {
             if (!o.sync_prof.equals("")) {
+                boolean light = ThemeUtil.isLightThemeUsed(mContext);
+                GradientDrawable card = new GradientDrawable();
+                card.setColor(light ? Color.WHITE : Color.rgb(27, 39, 59));
+                card.setCornerRadius(16 * mContext.getResources().getDisplayMetrics().density);
+                holder.ll_main.setBackground(card);
+                holder.tv_prof.setTextColor(light ? Color.rgb(20, 34, 56) : Color.WHITE);
+                int secondary = light ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195);
+                for (TextView text : new TextView[]{holder.tv_date, holder.tv_time, holder.tv_req,
+                        holder.tv_mode, holder.tv_et, holder.tv_cnt_copied, holder.tv_cnt_deleted, holder.tv_checked}) {
+                    text.setTextColor(secondary);
+                }
 //        		holder.ll_main.setBackgroundDrawable(ll_default);
 
                 holder.tv_seq.setText(String.format("%1$3d)", position + 1));
-                holder.tv_seq.setVisibility(TextView.VISIBLE);
+                holder.tv_seq.setVisibility(TextView.GONE);
                 holder.tv_date.setVisibility(TextView.VISIBLE);
                 holder.tv_time.setVisibility(TextView.VISIBLE);
                 holder.tv_status.setVisibility(TextView.VISIBLE);
@@ -221,7 +235,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 String st_text = "";
                 if (o.sync_status == SyncHistoryItem.SYNC_STATUS_SUCCESS) {
                     st_text = mContext.getString(R.string.msgs_main_sync_history_status_success);
-                    holder.tv_status.setTextColor(mTextColor);
+                    holder.tv_status.setTextColor(light ? Color.rgb(0, 114, 92) : Color.rgb(75, 221, 181));
                 } else if (o.sync_status == SyncHistoryItem.SYNC_STATUS_ERROR) {
                     st_text = mContext.getString(R.string.msgs_main_sync_history_status_error);
                     holder.tv_status.setTextColor(mThemeColorList.text_color_error);
@@ -235,7 +249,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                     holder.tv_error.setTextColor(mThemeColorList.text_color_warning);
                 }
 
-                holder.tv_et.setText(String.format(" %s", o.sync_elapsed_time));
+                holder.tv_et.setText("Duration " + o.sync_elapsed_time);
                 holder.tv_tr.setText(String.format(" %s", o.sync_transfer_speed));
 
                 holder.tv_status.setText(st_text);
@@ -243,7 +257,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 holder.tv_mode.setText(o.sync_test_mode ? mModeTest : mModeNormal);
                 if (o.sync_test_mode)
                     holder.tv_mode.setTextColor(mThemeColorList.text_color_warning);
-                else holder.tv_mode.setTextColor(mTextColor);
+                else holder.tv_mode.setTextColor(secondary);
 
                 holder.tv_cnt_copied.setText(Integer.toString(o.sync_result_no_of_copied));
                 holder.tv_cnt_deleted.setText(Integer.toString(o.sync_result_no_of_deleted));
@@ -261,7 +275,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 }
 
                 if (isShowCheckBox) holder.cb_sel.setVisibility(TextView.VISIBLE);
-                else holder.cb_sel.setVisibility(TextView.INVISIBLE);
+                else holder.cb_sel.setVisibility(TextView.GONE);
 
                 holder.cb_sel.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                                                              @Override

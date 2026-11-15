@@ -45,15 +45,20 @@
             android:paddingRight="8dp"
             android:visibility="gone">
             <TextView android:id="@+id/main_nav_files" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center" android:text="@string/nav_files" android:textSize="13sp" />
+                android:layout_weight="1" android:gravity="center" android:drawableTop="@drawable/modern_files"
+                android:drawablePadding="3dp" android:text="@string/nav_files" android:textSize="11sp" />
             <TextView android:id="@+id/main_nav_sync" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center" android:text="@string/nav_sync" android:textSize="13sp" />
+                android:layout_weight="1" android:gravity="center" android:drawableTop="@drawable/modern_sync"
+                android:drawablePadding="3dp" android:text="@string/nav_sync" android:textSize="11sp" />
             <TextView android:id="@+id/main_nav_activity" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center" android:text="@string/nav_activity" android:textSize="13sp" />
+                android:layout_weight="1" android:gravity="center" android:drawableTop="@drawable/modern_activity"
+                android:drawablePadding="3dp" android:text="@string/nav_activity" android:textSize="11sp" />
             <TextView android:id="@+id/main_nav_security" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center" android:text="@string/nav_security" android:textSize="13sp" />
+                android:layout_weight="1" android:gravity="center" android:drawableTop="@drawable/modern_security"
+                android:drawablePadding="3dp" android:text="@string/nav_security" android:textSize="11sp" />
             <TextView android:id="@+id/main_nav_more" android:layout_width="0dp" android:layout_height="match_parent"
-                android:layout_weight="1" android:gravity="center" android:text="@string/nav_more" android:textSize="13sp" />
+                android:layout_weight="1" android:gravity="center" android:drawableTop="@drawable/modern_more"
+                android:drawablePadding="3dp" android:text="@string/nav_more" android:textSize="11sp" />
         </LinearLayout>
 
     </LinearLayout>

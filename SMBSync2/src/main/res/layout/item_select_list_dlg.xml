@@ -8,7 +8,7 @@
     android:textAppearance="?android:attr/textAppearanceMedium"
     tools:ignore="HardcodedText,RtlHardcoded,LabelFor" >
     <!--android:padding="7dp"-->
-    <!--android:background="@drawable/dialog_box_outline"-->
+    <!--android:background="@drawable/modern_document"-->
 
     <LinearLayout
         android:id="@+id/item_select_list_dlg_title_view"

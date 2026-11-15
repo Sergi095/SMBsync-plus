@@ -36,6 +36,7 @@ public class SmbConnectionsActivity extends AppCompatActivity {
     private boolean locked;
     private boolean promptVisible;
     private boolean loadFailed;
+    private long lastHandledBackgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
 
     @Override protected void attachBaseContext(Context base) {
         super.attachBaseContext(new GlobalParameters().setNewLocale(base, false));
@@ -309,14 +310,17 @@ public class SmbConnectionsActivity extends AppCompatActivity {
     @Override protected void onResume() {
         super.onResume();
         gp.loadSettingsParms(this);
+        long backgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
+        boolean returnedFromBackground = backgroundEpoch != lastHandledBackgroundEpoch;
+        lastHandledBackgroundEpoch = backgroundEpoch;
         if (protectedByPassword()) {
             getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
+            if (returnedFromBackground && !gp.appPasswordAuthValidated) showLocked();
             if (locked) requestUnlock();
         } else getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
     }
 
     @Override protected void onPause() {
-        if (protectedByPassword() && !isChangingConfigurations()) showLocked();
         super.onPause();
     }
 }

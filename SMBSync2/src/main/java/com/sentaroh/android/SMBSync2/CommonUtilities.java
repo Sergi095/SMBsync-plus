@@ -35,14 +35,20 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.storage.StorageManager;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -50,8 +56,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sentaroh.android.SMBSync2.Log.LogUtil;
@@ -103,6 +112,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.Context.USAGE_STATS_SERVICE;
 import static com.sentaroh.android.SMBSync2.Constants.APPLICATION_TAG;
@@ -146,27 +156,97 @@ public final class CommonUtilities {
     }
 
     public void showCommonDialog(final boolean negative, String type, String title, String msgtext, NotifyEvent ntfy) {
-        MessageDialogFragment cdf = MessageDialogFragment.newInstance(negative, type, title, msgtext);
-        cdf.showDialog(mFragMgr,cdf,ntfy);
+        showCommonDialog(negative, type, title, msgtext, null, null, 0, ntfy);
     };
 
     public void showCommonDialog(final boolean negative, String type, String title, String msgtext, int text_color, NotifyEvent ntfy) {
-        MessageDialogFragment cdf = MessageDialogFragment.newInstance(negative, type, title, msgtext);
-        cdf.setMessageTextColor(text_color);
-        cdf.showDialog(mFragMgr,cdf,ntfy);
+        showCommonDialog(negative, type, title, msgtext, null, null, text_color, ntfy);
     };
 
     public void showCommonDialog(final boolean negative, String type, String title, String msgtext,
                                  String button_text_ok, String button_text_cancel, NotifyEvent ntfy) {
-        MessageDialogFragment cdf = MessageDialogFragment.newInstance(negative, type, title, msgtext, button_text_ok, button_text_cancel);
-        cdf.showDialog(mFragMgr,cdf,ntfy);
+        showCommonDialog(negative, type, title, msgtext, button_text_ok, button_text_cancel, 0, ntfy);
     };
 
     public void showCommonDialog(final boolean negative, String type, String title, String msgtext,
                                  String button_text_ok, String button_text_cancel, int text_color, NotifyEvent ntfy) {
-        MessageDialogFragment cdf = MessageDialogFragment.newInstance(negative, type, title, msgtext, button_text_ok, button_text_cancel);
-        cdf.setMessageTextColor(text_color);
-        cdf.showDialog(mFragMgr,cdf,ntfy);
+        if (!(mContext instanceof Activity)) {
+            if (mFragMgr == null) return;
+            MessageDialogFragment fallback = MessageDialogFragment.newInstance(negative, type, title, msgtext,
+                    button_text_ok, button_text_cancel);
+            if (text_color != 0) fallback.setMessageTextColor(text_color);
+            fallback.showDialog(mFragMgr, fallback, ntfy);
+            return;
+        }
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            new Handler(Looper.getMainLooper()).post(() -> showCommonDialog(negative, type, title, msgtext,
+                    button_text_ok, button_text_cancel, text_color, ntfy));
+            return;
+        }
+        Activity activity = (Activity) mContext;
+        if (activity.isFinishing()) return;
+        boolean light = ThemeUtil.isLightThemeUsed(activity);
+        int panel = light ? Color.WHITE : Color.rgb(27, 39, 59);
+        int primary = light ? Color.rgb(20, 34, 56) : Color.WHITE;
+        int accent = "E".equals(type) || "D".equals(type) ? Color.rgb(234, 91, 105)
+                : "W".equals(type) ? Color.rgb(237, 170, 67)
+                : light ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239);
+        int dp = (int) (activity.getResources().getDisplayMetrics().density + .5f);
+        LinearLayout header = new LinearLayout(activity);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPadding(20 * dp, 20 * dp, 20 * dp, 8 * dp);
+        ImageView icon = new ImageView(activity);
+        icon.setImageResource("I".equals(type) ? R.drawable.modern_help :
+                "D".equals(type) ? R.drawable.modern_delete : R.drawable.modern_warning);
+        icon.setColorFilter(accent, PorterDuff.Mode.SRC_IN);
+        header.addView(icon, new LinearLayout.LayoutParams(26 * dp, 26 * dp));
+        TextView heading = new TextView(activity);
+        heading.setText(title == null ? "" : title);
+        heading.setTextColor(primary);
+        heading.setTextSize(19);
+        heading.setTypeface(null, android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams headingParams = new LinearLayout.LayoutParams(0, -2, 1);
+        headingParams.leftMargin = 12 * dp;
+        header.addView(heading, headingParams);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity).setCustomTitle(header);
+        if (msgtext != null && !msgtext.isEmpty()) {
+            TextView message = new TextView(activity);
+            message.setText(msgtext);
+            message.setTextColor(text_color == 0 ? (light ? Color.rgb(86, 105, 125) : Color.rgb(194, 207, 221)) : text_color);
+            message.setTextSize(15);
+            message.setTextIsSelectable(true);
+            message.setPadding(20 * dp, 6 * dp, 20 * dp, 12 * dp);
+            ScrollView messageScroll = new ScrollView(activity);
+            messageScroll.addView(message);
+            builder.setView(messageScroll);
+        }
+        AtomicBoolean completed = new AtomicBoolean(false);
+        builder.setPositiveButton(button_text_ok == null ? activity.getString(R.string.msgs_common_dialog_ok) : button_text_ok,
+                (dialog, which) -> {
+                    if (completed.compareAndSet(false, true) && ntfy != null) ntfy.notifyToListener(true, null);
+                });
+        if (negative) builder.setNegativeButton(button_text_cancel == null ? activity.getString(R.string.msgs_common_dialog_cancel) : button_text_cancel,
+                (dialog, which) -> {
+                    if (completed.compareAndSet(false, true) && ntfy != null) ntfy.notifyToListener(false, null);
+                });
+        builder.setOnCancelListener(dialog -> {
+            if (completed.compareAndSet(false, true) && ntfy != null) ntfy.notifyToListener(false, null);
+        });
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(ignored -> {
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(panel);
+            background.setCornerRadius(16 * dp);
+            dialog.getWindow().setBackgroundDrawable(background);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accent);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setAllCaps(false);
+            if (negative) {
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                        light ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195));
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setAllCaps(false);
+            }
+        });
+        dialog.show();
     };
 
     static public void showToastMessageLong(Activity c, String msg_txt) {
@@ -178,11 +258,7 @@ public final class CommonUtilities {
     }
 
     static public void showToastMessage(Activity c, String msg_txt, int duration) {
-        Toast toast=null;
-        if (duration==Toast.LENGTH_SHORT) toast=CommonDialog.getToastShort(c, msg_txt);
-        else toast=CommonDialog.getToastLong(c, msg_txt);
-        toast.setGravity(Gravity.BOTTOM, 0, (int) CommonDialog.toPixel(c.getResources(), 100));
-        toast.show();
+        Toast.makeText(c, msg_txt, duration).show();
     }
 
     public String getStringWithLocale(Activity c, String lang_code, int res_id) {
@@ -1003,7 +1079,10 @@ public final class CommonUtilities {
     }
 
     static public void setDialogBoxOutline(Context c, LinearLayout ll, int padding_dp, int margin_dp) {
-        ll.setBackgroundResource(R.drawable.dialog_box_outline);
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(ThemeUtil.isLightThemeUsed(c) ? Color.WHITE : Color.rgb(27, 39, 59));
+        background.setCornerRadius(toPixel(c.getResources(), 14));
+        ll.setBackground(background);
         int padding=(int)toPixel(c.getResources(),padding_dp);
         ll.setPadding(padding, padding, padding, padding);
 

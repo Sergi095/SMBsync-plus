@@ -35,7 +35,7 @@
 	            android:layout_height="42dp"
 	            android:layout_gravity="right"
 	            android:scaleType="centerCrop"
-	            android:src="@drawable/ic_128_help" />
+	            android:src="@drawable/modern_help" />
 	        	        
         </LinearLayout>
 
@@ -78,24 +78,6 @@
                android:layout_height="wrap_content"
                android:layout_marginLeft="10dp"
                android:orientation="vertical" >
-
-               <CheckedTextView
-                   android:id="@+id/edit_sync_task_option_ctv_sync_test_mode"
-                   android:layout_width="fill_parent"
-                   android:layout_height="wrap_content"
-                   android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-                   android:gravity="center_vertical"
-                   android:text="@string/msgs_profile_sync_task_sync_option_test_mode"
-                   android:textAppearance="?android:attr/textAppearanceMedium" />
-
-               <CheckedTextView
-                   android:id="@+id/edit_sync_task_ctv_auto"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-                   android:gravity="center_vertical"
-                   android:text="@string/msgs_profile_sync_task_dlg_active"
-                   android:textAppearance="?android:attr/textAppearanceMedium" />
 
                <EditText
                    android:id="@+id/edit_sync_task_task_name"
@@ -178,7 +160,7 @@
                        android:scaleType="centerInside"
                        android:layout_marginTop="9dp"
                        android:layout_marginLeft="2dp"
-                       android:src="@drawable/ic_32_mobile" />
+                       android:src="@drawable/modern_phone" />
 
                </RelativeLayout>
 
@@ -210,9 +192,18 @@
                        android:scaleType="centerInside"
                        android:layout_marginTop="9dp"
                        android:layout_marginLeft="2dp"
-                       android:src="@drawable/ic_32_mobile" />
+                       android:src="@drawable/modern_phone" />
 
                </RelativeLayout>
+
+               <CheckedTextView
+                   android:id="@+id/edit_sync_task_ctv_auto"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                   android:gravity="center_vertical"
+                   android:text="@string/msgs_profile_sync_task_dlg_active"
+                   android:textAppearance="?android:attr/textAppearanceMedium" />
 
                <Button
                    android:id="@+id/edit_sync_task_advanced_toggle"
@@ -237,6 +228,15 @@
                    android:layout_height="wrap_content"
                    android:orientation="vertical"
                    android:visibility="gone">
+               <CheckedTextView
+                   android:id="@+id/edit_sync_task_option_ctv_sync_test_mode"
+                   android:layout_width="fill_parent"
+                   android:layout_height="wrap_content"
+                   android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                   android:gravity="center_vertical"
+                   android:text="@string/msgs_profile_sync_task_sync_option_test_mode"
+                   android:textAppearance="?android:attr/textAppearanceMedium" />
+
                    <include layout="@layout/edit_sync_task_dlg_filter" />
                    <include layout="@layout/edit_sync_task_dlg_options" />
                </LinearLayout>

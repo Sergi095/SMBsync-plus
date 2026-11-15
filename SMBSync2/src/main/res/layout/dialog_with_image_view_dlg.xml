@@ -48,7 +48,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/auto_sync"/>
+                android:src="@drawable/smbsync_plus_icon"/>
         </LinearLayout>
     </ScrollView>
 

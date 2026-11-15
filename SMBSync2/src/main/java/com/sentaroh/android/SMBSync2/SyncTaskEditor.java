@@ -3167,7 +3167,7 @@ public class SyncTaskEditor extends DialogFragment {
                 if (dir.startsWith("/")) info = sti.getMasterLocalMountPoint() + dir;
                 else info = sti.getMasterLocalMountPoint() + "/" + dir;
             }
-            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_mobile, null));
+            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_phone, null));
         } else if (sti.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SDCARD)) {
             String dir = sti.getMasterDirectoryName();
             if (dir.equals("")) info = mGp.safMgr.getSdcardRootPath();
@@ -3176,9 +3176,9 @@ public class SyncTaskEditor extends DialogFragment {
                 else info = mGp.safMgr.getSdcardRootPath() + "/" + dir;
             }
             if (mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_sdcard_bad, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_warning, null));
             } else {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_sdcard, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_storage, null));
             }
         } else if (sti.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_USB)) {
             String dir = sti.getMasterDirectoryName();
@@ -3188,9 +3188,9 @@ public class SyncTaskEditor extends DialogFragment {
                 else info = mGp.safMgr.getUsbRootPath() + "/" + dir;
             }
             if (mGp.safMgr.getUsbRootPath().equals(SafManager.UNKNOWN_USB_DIRECTORY)) {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_usb_bad, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_warning, null));
             } else {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_usb, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_usb, null));
             }
         } else if (sti.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SMB)) {
             String host = sti.getMasterSmbAddr();
@@ -3202,7 +3202,7 @@ public class SyncTaskEditor extends DialogFragment {
                 if (dir.startsWith("/")) info = "smb://" + host + "/" + share + dir;
                 else info = "smb://" + host + "/" + share + "/" + dir;
             }
-            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_server, null));
+            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_server, null));
         }
         return info;
     }
@@ -3216,7 +3216,7 @@ public class SyncTaskEditor extends DialogFragment {
                 if (dir.startsWith("/")) info = sti.getTargetLocalMountPoint() + dir;
                 else info = sti.getTargetLocalMountPoint() + "/" + dir;
             }
-            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_mobile, null));
+            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_phone, null));
         } else if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SDCARD)) {
             String dir = sti.getTargetDirectoryName();
             if (dir.equals("")) info = mGp.safMgr.getSdcardRootPath();
@@ -3225,9 +3225,9 @@ public class SyncTaskEditor extends DialogFragment {
                 else info = mGp.safMgr.getSdcardRootPath() + "/" + dir;
             }
             if (mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_sdcard_bad, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_warning, null));
             } else {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_sdcard, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_storage, null));
             }
         } else if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_USB)) {
             String dir = sti.getTargetDirectoryName();
@@ -3237,9 +3237,9 @@ public class SyncTaskEditor extends DialogFragment {
                 else info = mGp.safMgr.getUsbRootPath() + "/" + dir;
             }
             if (mGp.safMgr.getUsbRootPath().equals(SafManager.UNKNOWN_USB_DIRECTORY)) {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_usb_bad, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_warning, null));
             } else {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_usb, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_usb, null));
             }
         } else if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_ZIP)) {
             if (!sti.isTargetZipUseExternalSdcard())
@@ -3249,9 +3249,9 @@ public class SyncTaskEditor extends DialogFragment {
             }
             if (sti.isTargetZipUseExternalSdcard() &&
                     mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_sdcard_bad, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_warning, null));
             } else {
-                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_archive, null));
+                info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_archive, null));
             }
         } else if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SMB)) {
             String host = sti.getTargetSmbAddr();
@@ -3263,7 +3263,7 @@ public class SyncTaskEditor extends DialogFragment {
                 if (dir.startsWith("/")) info = "smb://" + host + "/" + share + dir;
                 else info = "smb://" + host + "/" + share + "/" + dir;
             }
-            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_32_server, null));
+            info_icon.setImageDrawable(mContext.getResources().getDrawable(R.drawable.modern_server, null));
         }
         return info;
     }
@@ -3556,7 +3556,11 @@ public class SyncTaskEditor extends DialogFragment {
     }
 
     private void setSpinnerSyncTaskType(Spinner spinnerSyncOption, SyncTaskItem n_sti) {
-        CommonUtilities.setSpinnerBackground(mContext, spinnerSyncOption, mGp.isScreenThemeIsLight());
+        spinnerSyncOption.setBackgroundResource(mGp.isScreenThemeIsLight()
+                ? R.drawable.modern_spinner_light : R.drawable.modern_spinner_dark);
+        spinnerSyncOption.setMinimumHeight((int) (48 * getResources().getDisplayMetrics().density));
+        spinnerSyncOption.setPadding((int) (12 * getResources().getDisplayMetrics().density), 0,
+                (int) (40 * getResources().getDisplayMetrics().density), 0);
         String prof_syncopt = n_sti.getSyncTaskType();
         final CustomSpinnerAdapter adapterSyncOption =
                 new CustomSpinnerAdapter(mContext, android.R.layout.simple_spinner_item);
@@ -5777,7 +5781,9 @@ public class SyncTaskEditor extends DialogFragment {
 //				Log.v("","fm="+filter_msg);
             }
         } else {
-            setDialogMsg(dlg_msg, t_name_msg);
+            if (type.equals("ADD") && et_sync_main_task_name.getText().length() == 0)
+                dlg_msg.setVisibility(View.GONE);
+            else setDialogMsg(dlg_msg, t_name_msg);
             CommonDialog.setViewEnabled(getActivity(), btn_ok, false);
         }
     }

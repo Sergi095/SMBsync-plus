@@ -3,7 +3,7 @@
     <!-- About -->
         <string name="msgs_about_dlg_func_btn">Functions</string>
         <string name="msgs_about_dlg_change_btn">Change Log</string>
-        <string name="msgs_about_dlg_privacy_btn">Privacy</string>
+        <string name="msgs_about_dlg_privacy_btn">Your data</string>
         <string name="msgs_dlg_title_about">About SMBsync+</string>
         <string name="msgs_dlg_title_about_func_desc">SMBSync2_Desc_EN_Short.md</string>
         <string name="msgs_dlg_title_about_privacy_desc">SMBSync2_Privacy_EN.md</string>
@@ -73,10 +73,10 @@
         <string name="msgs_log_management_dlg_send_zip_file_cancelled">ZIP file creation cancelled</string>
         <string name="msgs_log_management_log_file_switched">Log file switched.</string>
         <string name="msgs_log_management_enable_log_file_warning">If you proceed, the following data will be recorded in the log file:\nAndroid version, Device name, Directory name, File name, SMB Account name, IP address, Network interface name, System settings, App information</string>
-        <string name="msgs_log_management_send_log_file_warning">Send log file by E-Mail to the developer. The log file contains Android version, Device name, Directory name, File name, SMB Account name, IP address, Network interface name, System settings and App information.\n1.Press the Preview button to check the conents of the temp_log.txt file that will be sent (if the selection screen of the application is displayed, then select the FAVORIT application to display the text file.)\n2.When you are done reading the file to send, select the E-Mail in EMail selection dialog.\n3.Please enter a problem/question in the E-Mail body and send an E-Mail (the log file is attached in zip format)</string>
+        <string name="msgs_log_management_send_log_file_warning">To report a problem, open More → Report an issue. You can preview and share a log file if it helps describe the problem. Logs can include device details, file and folder names, SMB account names, IP addresses, and app settings. Review a log before sharing it.</string>
     <!-- Main -->
         <string name="msgs_active_sync_prof_not_found">Auto sync task not found.</string>
-        <string name="msgs_add_sync_profile">New sync task</string>
+        <string name="msgs_add_sync_profile">New folder pair</string>
         <string name="msgs_security_application_password_create_title">Create App password</string>
         <string name="msgs_security_application_password_create_min_length_is_4_digit">Password requires 4 characters or more.</string>
         <string name="msgs_security_application_password_create_forget_recovery">If you forget your password please initialize or reinstall the application.</string>
@@ -90,7 +90,7 @@
         <string name="msgs_audit_share_not_spec">Specify share name.</string>
         <string name="msgs_clear_log_message">Clear log messages</string>
         <string name="msgs_cont_button_diabled_by_sync">The requested operation was ignored during synchronization.</string>
-        <string name="msgs_copy_sync_profile">Copy Sync task</string>
+        <string name="msgs_copy_sync_profile">Duplicate folder pair</string>
         <string name="msgs_create_profile_error">Failed to create settings backup file: %s</string>
         <string name="msgs_create_profile_not_found">Failed to restore profile. Filename %s was not found.</string>
         <string name="msgs_current_dir">Current dir:</string>
@@ -101,7 +101,7 @@
         <string name="msgs_task_name_remove_with_schedule_group_task_list">When the task is deleted, the task name in the schedule is also deleted.</string>
         <string name="msgs_task_name_contains_invalid_character">The task name contains invalid characters: \"%s\"</string>
         <string name="msgs_task_name_too_long">Task name cannot be longer than %1$s chars. Current: %2$s</string>
-        <string name="msgs_edit_sync_profile">Edit Sync Task</string>
+        <string name="msgs_edit_sync_profile">Edit folder pair</string>
         <string name="msgs_export_prof_fail">Failed to export synchronisation settings.</string>
         <string name="msgs_export_prof_success">Successfully exported synchronisation settings.</string>
         <string name="msgs_export_prof_title">Export Synchronisation Settings.</string>
@@ -150,7 +150,7 @@
         <string name="msgs_import_prof_fail_no_valid_item">%s contains no valid synchronisation settings</string>
         <string name="msgs_info_storage_copy_clipboard">Copy</string>
         <string name="msgs_info_storage_copy_completed">Copied to clipboard</string>
-        <string name="msgs_info_storage_send_btn_title">Send to developer</string>
+        <string name="msgs_info_storage_send_btn_title">Share details</string>
         <string name="msgs_info_storage_title">Storage Information</string>
         <string name="msgs_your_problem_title">Your problem/question about SMBSync2</string>
         <string name="msgs_your_problem_msg">Please fill in the details of your problem or question about SMBSync2.</string>
@@ -363,7 +363,7 @@
         <string name="msgs_profile_edit_sync_folder_dlg_zip_time_stamp">Append time stamp to ZIP file name</string>
         <string name="msgs_profile_edit_sync_folder_dlg_zip_use_sdcard">Save ZIP file to SDCARD.</string>
         <string name="msgs_profile_sync_folder_dlg_confirm_msg_nosave">Warning:  The sync task settings have changed. Exit without saving?</string>
-        <string name="msgs_profile_sync_task_dlg_active">Auto sync</string>
+        <string name="msgs_profile_sync_task_dlg_active">Include in automatic runs</string>
         <string name="msgs_profile_sync_task_dlg_change_master_and_target">Swap source and destination</string>
         <string name="msgs_profile_sync_task_dlg_swap_warning_title">Swap source and destination</string>
         <string name="msgs_profile_sync_task_dlg_swap_warning_message">Reversing the direction of synchronization may result in unexpected deletes of files and directories.\nIt is strongly recommend that you enable Test mode and ensure that no files or directories are removed or replaced unintentionally.</string>
@@ -383,14 +383,14 @@
         <string name="msg_edit_sync_folder_keyword_insert_week_day" formatted="false">WEEK DAY (%s, %s ...)</string>
         <string name="msg_edit_sync_folder_keyword_insert_week_day_long" formatted="false">WEEK DAY (%s, %s ...)</string>
         <string name="msgs_profile_sync_task_dlg_master">Source</string>
-        <string name="msgs_profile_sync_task_dlg_sync_type">Sync type</string>
+        <string name="msgs_profile_sync_task_dlg_sync_type">Sync method</string>
         <string name="msgs_profile_sync_task_dlg_sync_type_archive">Archive</string>
         <string name="msgs_profile_sync_task_dlg_sync_type_copy">Copy</string>
         <string name="msgs_profile_sync_task_dlg_sync_type_mirror">Mirror (optional deletion)</string>
         <string name="msgs_profile_sync_task_dlg_sync_type_move">Move</string>
-        <string name="msgs_profile_sync_task_dlg_sync_type_prompt">Select sync type</string>
+        <string name="msgs_profile_sync_task_dlg_sync_type_prompt">Select sync method</string>
         <string name="msgs_profile_sync_task_dlg_target">Destination</string>
-        <string name="msgs_profile_sync_task_dlg_task_name">Sync task name</string>
+        <string name="msgs_profile_sync_task_dlg_task_name">Folder pair name</string>
         <string name="msgs_profile_sync_task_dlg_wifi_addr_add_current_addr">Add current IP address</string>
         <string name="msgs_profile_sync_task_dlg_wifi_addr_edit_title">Edit IP Address</string>
         <string name="msgs_profile_sync_task_dlg_wifi_addr_hint">IP Address</string>
@@ -592,7 +592,7 @@
         <string name="msgs_menu_housekeep">Database maintenance</string>
         <string name="msgs_menu_kill">Kill the application</string>
         <string name="msgs_menu_add_shortcut">Add shortcut</string>
-        <string name="msgs_menu_list_storage_info">System info</string>
+        <string name="msgs_menu_list_storage_info">Device &amp; app info</string>
         <string name="msgs_menu_show_battery_optimization_screen">Battery optimization</string>
     <!-- Mirror -->
         <string name="msgs_mirror_confirm_archive_date_time_from_file_cancel">[Archive cancelled]</string>
@@ -751,7 +751,7 @@
         <string name="msgs_scheduler_info_next_schedule_time">Next sync time is %s</string>
         <string name="msgs_scheduler_info_next_schedule_main_info">Next sync: %1$s, (%2$s)</string>
         <string name="msgs_scheduler_info_next_schedule_main_error">Some enabled schedules contain errors. Check the \"Schedule\" tab for more details.</string>
-        <string name="msgs_scheduler_info_schedule_disabled">Sync schedule disabled</string>
+        <string name="msgs_scheduler_info_schedule_disabled">No active schedule</string>
         <string name="msgs_scheduler_info_schedule_enabled">Sync schedule enabled</string>
         <string name="msgs_scheduler_info_sync_all_active_profile">Execute all auto sync tasks</string>
         <string name="msgs_scheduler_info_sync_selected_profile">Sync task(s) %s</string>

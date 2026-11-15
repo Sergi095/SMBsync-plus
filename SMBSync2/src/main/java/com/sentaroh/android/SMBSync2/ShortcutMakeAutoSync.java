@@ -55,7 +55,7 @@ public class ShortcutMakeAutoSync extends Activity {
         if (Build.VERSION.SDK_INT >= 26) {
             // Android 8 O API26 以降
 //            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-//            Icon icon = Icon.createWithResource(getApplicationContext(), R.drawable.auto_sync);
+//            Icon icon = Icon.createWithResource(getApplicationContext(), R.drawable.smbsync_plus_icon);
 //            ShortcutInfo shortcutInfo = new ShortcutInfo.Builder(getApplicationContext(), shortcutName)
 //                    .setShortLabel(shortcutName)
 //                    .setLongLabel(shortcutName)
@@ -71,7 +71,7 @@ public class ShortcutMakeAutoSync extends Activity {
             intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
             intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
             Parcelable iconResource =
-                    Intent.ShortcutIconResource.fromContext(mContext, R.drawable.auto_sync);
+                    Intent.ShortcutIconResource.fromContext(mContext, R.drawable.smbsync_plus_icon);
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
             intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
             setResult(RESULT_OK, intent);
@@ -80,7 +80,7 @@ public class ShortcutMakeAutoSync extends Activity {
             intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
             intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
             Parcelable iconResource =
-                    Intent.ShortcutIconResource.fromContext(mContext, R.drawable.auto_sync);
+                    Intent.ShortcutIconResource.fromContext(mContext, R.drawable.smbsync_plus_icon);
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
             intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
             setResult(RESULT_OK, intent);

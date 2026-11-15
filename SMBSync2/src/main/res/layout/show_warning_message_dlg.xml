@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="7dp"
-    android:background="@drawable/dialog_box_outline"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_gravity="start"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:src="@drawable/dialog_warning"
+            android:src="@drawable/modern_warning"
             tools:ignore="ContentDescription" />
 
         <TextView

@@ -67,6 +67,8 @@ public class ApplicationPasswordUtil {
     static public void saveApplicationPasswordHashValue(GlobalParameters gp, SharedPreferences prefs, String hv) {
         prefs.edit().putString(SMBSYNC2_APPLICATION_PASSWORD_HASH_VALUE, hv).commit();
         gp.settingSecurityApplicationPasswordHashValue=hv;
+        gp.appPasswordAuthValidated = !hv.isEmpty();
+        gp.appPasswordAuthLastTime = System.currentTimeMillis();
     }
 
     public final static int APPLICATION_PASSWORD_RESOURCE_EXPORT_TASK_LIST=1;

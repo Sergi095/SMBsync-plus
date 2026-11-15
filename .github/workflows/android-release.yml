@@ -1,0 +1,89 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+
+      - name: Install Android platform
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
+
+      - name: Restore release signing
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.SMBSYNC_PLUS_RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_SIGNING_PROPERTIES: ${{ secrets.SMBSYNC_PLUS_RELEASE_SIGNING_PROPERTIES }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_KEYSTORE_BASE64"
+          test -n "$RELEASE_SIGNING_PROPERTIES"
+          umask 077
+          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          printf '%s\n' "$RELEASE_SIGNING_PROPERTIES" > "$RUNNER_TEMP/release-signing.properties"
+          sed -i "s|^storeFile=.*|storeFile=$RUNNER_TEMP/release.jks|" "$RUNNER_TEMP/release-signing.properties"
+          test -s "$RUNNER_TEMP/release.jks"
+
+      - name: Build signed release APK
+        env:
+          SMBSYNC_PLUS_SIGNING_PROPERTIES: ${{ runner.temp }}/release-signing.properties
+        run: bash ./gradlew :SMBSync2:assembleRelease --no-daemon --console=plain
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          apk=SMBSync2/build/outputs/apk/release/SMBSync2-release.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk" 2>/dev/null
+          signer=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" 2>/dev/null | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          test "$signer" = 78be3d232a3bbaa7b8d87da437c61ed67714c2e7780685aba18bac66ef5c940a
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            version=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | sed -n "s/^package:.*versionName='\([^']*\)'.*/\1/p")
+            test "$GITHUB_REF_NAME" = "v$version"
+          fi
+          sha256sum "$apk"
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$GITHUB_REF_NAME
+          asset="SMBsync-plus-$tag.apk"
+          cp SMBSync2/build/outputs/apk/release/SMBSync2-release.apk "$RUNNER_TEMP/$asset"
+          cd "$RUNNER_TEMP"
+          sha256sum "$asset" > "$asset.sha256"
+          if [ -f "$GITHUB_WORKSPACE/.github/release-notes/$tag.md" ]; then
+            gh release create "$tag" "$asset" "$asset.sha256" \
+              --repo "$GITHUB_REPOSITORY" --verify-tag --latest \
+              --title "SMBsync+ ${tag#v}" \
+              --notes-file "$GITHUB_WORKSPACE/.github/release-notes/$tag.md"
+          else
+            gh release create "$tag" "$asset" "$asset.sha256" \
+              --repo "$GITHUB_REPOSITORY" --verify-tag --latest \
+              --title "SMBsync+ ${tag#v}" --generate-notes
+          fi

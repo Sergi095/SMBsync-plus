@@ -28,6 +28,7 @@
     <!--android:icon="@drawable/smbsync"-->
     <!--android:roundIcon="@mipmap/ic_launcher"-->
     <application
+        android:name=".SMBsyncPlusApplication"
         android:icon="@drawable/smbsync_plus_icon"
         android:label="@string/app_name"
         android:theme="@style/Main"
@@ -36,6 +37,7 @@
         android:requestLegacyExternalStorage="true"
         >
         <activity android:name=".RepositoryUpdateActivity" android:exported="false" />
+        <activity android:name=".SystemInfoActivity" android:exported="false" android:label="Device &amp; app" />
         <activity android:name=".SmbConnectionsActivity" android:exported="false" android:label="SMB connections" />
         <receiver
     	    android:name="com.sentaroh.android.SMBSync2.SyncReceiver"

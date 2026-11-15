@@ -10,7 +10,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/context_button_trash"/>
+        android:src="@drawable/modern_delete"/>
 
     <TextView
         android:id="@+id/edit_usb_uuid_list_dlg_list_uuid"

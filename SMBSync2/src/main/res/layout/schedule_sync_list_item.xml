@@ -88,7 +88,7 @@
             android:paddingRight="7dp"
             android:scaleType="fitXY"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_32_execute_schedule"/>
+            android:src="@drawable/modern_schedule"/>
 
         <CheckBox
             android:id="@+id/schedule_sync_list_checked"

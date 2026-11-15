@@ -139,7 +139,7 @@ import static com.sentaroh.android.SMBSync2.ScheduleConstants.SCHEDULER_INTENT_S
 public class ActivityMain extends AppCompatActivity {
 
     private boolean isTaskTermination = false; // kill is disabled(enable is kill by onDestroy)
-    private boolean unlockAfterBackground = false;
+    private long lastHandledBackgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
     private boolean mAppLocked = false;
     private boolean mUnlockPromptVisible = false;
     private FrameLayout mLockOverlay;
@@ -379,8 +379,10 @@ public class ActivityMain extends AppCompatActivity {
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered, " + "mStartStatus=" + mStartStatus+", mRestoreType="+ mRestoreType);
 
         if (mStartStatus == START_STATUS_COMPLETED) {
-            if (unlockAfterBackground || mAppLocked) {
-                unlockAfterBackground = false;
+            long backgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
+            boolean returnedFromBackground = backgroundEpoch != lastHandledBackgroundEpoch;
+            lastHandledBackgroundEpoch = backgroundEpoch;
+            if ((returnedFromBackground && !mGp.appPasswordAuthValidated) || mAppLocked) {
                 mGp.loadSettingsParms(mContext);
                 if (isStartupProtectionEnabled()) {
                     showLockedUi();
@@ -420,7 +422,7 @@ public class ActivityMain extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if (corrupted) {
-                                    mCommonDlg.showCommonDialog(true, "E",mContext.getString(R.string.msgs_smbsync_main_private_key_corrupted_title),
+                                    mUtil.showCommonDialog(true, "E",mContext.getString(R.string.msgs_smbsync_main_private_key_corrupted_title),
                                             mContext.getString(R.string.msgs_smbsync_main_private_key_corrupted_msg), ntfy_priv_key);
                                 } else {
                                     processOnResumeForStart();
@@ -570,6 +572,7 @@ public class ActivityMain extends AppCompatActivity {
         mGp.syncTaskAdapter.notifyDataSetChanged();
         ScheduleUtil.setSchedulerInfo(mActivity, mGp, mUtil);
         setScheduleTabMessage();
+        updateSyncOverview();
 
         deleteTaskData();
 //                    ScheduleUtil.setSchedulerInfo(mGp, mUtil);
@@ -584,8 +587,6 @@ public class ActivityMain extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if (mStartStatus == START_STATUS_COMPLETED && isStartupProtectionEnabled() && !isChangingConfigurations())
-            showLockedUi();
         super.onPause();
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered " + ",currentView=" + mCurrentTab +
                 ", getChangingConfigurations=" + String.format("0x%08x", getChangingConfigurations()));
@@ -596,7 +597,6 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (mStartStatus == START_STATUS_COMPLETED && !isChangingConfigurations()) unlockAfterBackground = true;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered");
         setActivityForeground(false);
     }
@@ -687,163 +687,7 @@ public class ActivityMain extends AppCompatActivity {
 
 
     private void showSystemInfo() {
-        final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.common_dialog);
-
-        final LinearLayout ll_title=(LinearLayout) dialog.findViewById(R.id.common_dialog_title_view);
-        ll_title.setBackgroundColor(mGp.themeColorList.title_background_color);
-        final TextView tv_title=(TextView)dialog.findViewById(R.id.common_dialog_title);
-        tv_title.setTextColor(mGp.themeColorList.title_text_color);
-        final TextView tv_msg_old=(TextView)dialog.findViewById(R.id.common_dialog_msg);
-        tv_msg_old.setVisibility(TextView.GONE);
-        final NonWordwrapTextView tv_msg=(NonWordwrapTextView) dialog.findViewById(R.id.common_dialog_nonwordwrap_text_view);
-        tv_msg.setVisibility(TextView.VISIBLE);
-        tv_msg.setWordWrapEnabled(mGp.settingSyncMessageUseStandardTextView);
-//        if (Build.VERSION.SDK_INT>=23) tv_msg.setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY);
-        final Button btn_copy=(Button)dialog.findViewById(R.id.common_dialog_btn_ok);
-        final Button btn_close=(Button)dialog.findViewById(R.id.common_dialog_btn_cancel);
-        final Button btn_send=(Button)dialog.findViewById(R.id.common_dialog_extra_button);
-        btn_send.setText(mContext.getString(R.string.msgs_info_storage_send_btn_title));
-        btn_send.setVisibility(Button.VISIBLE);
-
-        tv_title.setText(mContext.getString(R.string.msgs_menu_list_storage_info));
-        btn_close.setText(mContext.getString(R.string.msgs_common_dialog_close));
-        btn_copy.setText(mContext.getString(R.string.msgs_info_storage_copy_clipboard));
-
-        ArrayList<String>sil= CommonUtilities.listSystemInfo(mContext, mGp);
-        String si_text="";
-        for(String si_item:sil) si_text+=si_item+"\n";
-
-        tv_msg.setText(si_text);
-
-        CommonDialog.setDlgBoxSizeLimit(dialog,true);
-
-        btn_copy.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                android.content.ClipboardManager cm=(android.content.ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData cd=cm.getPrimaryClip();
-                cm.setPrimaryClip(ClipData.newPlainText("SMBSync2 storage info", tv_msg.getOriginalText().toString()));
-                CommonUtilities.showToastMessageLong(mActivity, mContext.getString(R.string.msgs_info_storage_copy_completed));
-            }
-        });
-
-        btn_close.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        btn_send.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NotifyEvent ntfy=new NotifyEvent(mContext);
-                ntfy.setListener(new NotifyEventListener() {
-                    @Override
-                    public void positiveResponse(Context context, Object[] objects) {
-                        String desc=(String)objects[0];
-                        Intent intent=new Intent();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("message/rfc822");
-//                intent.setType("text/plain");
-//                intent.setType("application/zip");
-
-                        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"gm.developer.fhoshino@gmail.com"});
-//                intent.putExtra(Intent.EXTRA_CC, new String[]{"cc@example.com"});
-//                intent.putExtra(Intent.EXTRA_BCC, new String[]{"bcc@example.com"});
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "SMBSync2 System Info");
-                        intent.putExtra(Intent.EXTRA_TEXT, desc+ "\n\n\n"+tv_msg.getOriginalText().toString());
-//                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(lf));
-                        mContext.startActivity(intent);
-                    }
-                    @Override
-                    public void negativeResponse(Context context, Object[] objects) {
-                    }
-                });
-                getProblemDescription(ntfy);
-            }
-        });
-
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                btn_close.performClick();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void getProblemDescription(final NotifyEvent p_ntfy) {
-        final Dialog dialog = new Dialog(mActivity, mGp.applicationTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.single_item_input_dlg);
-
-        LinearLayout ll_dlg_view = (LinearLayout) dialog.findViewById(R.id.single_item_input_dlg_view);
-        CommonUtilities.setDialogBoxOutline(mContext, ll_dlg_view);
-//        ll_dlg_view.setBackgroundColor(mGp.themeColorList.dialog_msg_background_color);
-
-        final LinearLayout title_view = (LinearLayout) dialog.findViewById(R.id.single_item_input_title_view);
-        final TextView tv_title = (TextView) dialog.findViewById(R.id.single_item_input_title);
-        title_view.setBackgroundColor(mGp.themeColorList.title_background_color);
-        tv_title.setTextColor(mGp.themeColorList.title_text_color);
-        tv_title.setText(mContext.getString(R.string.msgs_your_problem_title));
-
-        final TextView tv_msg=(TextView)dialog.findViewById(R.id.single_item_input_msg);
-        tv_msg.setVisibility(TextView.GONE);
-        final TextView tv_desc=(TextView)dialog.findViewById(R.id.single_item_input_name);
-        tv_desc.setText(mContext.getString(R.string.msgs_your_problem_msg));
-        final EditText et_msg=(EditText)dialog.findViewById(R.id.single_item_input_dir);
-        et_msg.setHint(mContext.getString(R.string.msgs_your_problem_hint));
-        et_msg.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        final Button btn_ok=(Button)dialog.findViewById(R.id.single_item_input_ok_btn);
-        final Button btn_cancel=(Button)dialog.findViewById(R.id.single_item_input_cancel_btn);
-
-//        btn_cancel.setText(mContext.getString(R.string.msgs_common_dialog_close));
-
-        CommonDialog.setDlgBoxSizeLimit(dialog,true);
-
-        btn_ok.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NotifyEvent ntfy_desc=new NotifyEvent(mContext);
-                ntfy_desc.setListener(new NotifyEventListener() {
-                    @Override
-                    public void positiveResponse(Context context, Object[] objects) {
-                        p_ntfy.notifyToListener(true, new Object[]{et_msg.getText().toString()});
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public void negativeResponse(Context context, Object[] objects) {
-                    }
-                });
-                if (et_msg.getText().length()==0) {
-                    mUtil.showCommonDialog(true, "W", mContext.getString(R.string.msgs_your_problem_no_desc),"",ntfy_desc);
-                } else {
-                    ntfy_desc.notifyToListener(true, null);
-                }
-            }
-        });
-
-        btn_cancel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                btn_cancel.performClick();
-            }
-        });
-
-        dialog.show();
+        startActivity(new Intent(mActivity, SystemInfoActivity.class));
     }
 
     private void showBatteryOptimization() {
@@ -866,7 +710,7 @@ public class ActivityMain extends AppCompatActivity {
             try {
                 startActivity(intent);
             } catch(Exception e) {
-                mCommonDlg.showCommonDialog(false, "E", "Invoke Battery optimization error", "error="+e.getMessage(), null);
+                mUtil.showCommonDialog(false, "E", "Invoke Battery optimization error", "error="+e.getMessage(), null);
             }
 
         }
@@ -1131,43 +975,77 @@ public class ActivityMain extends AppCompatActivity {
         mGp.syncMessageListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mGp.syncTaskListView = (ListView) mSyncTaskView.findViewById(R.id.main_sync_task_view_list);
         mGp.syncTaskEmptyMessage=(TextView)mSyncTaskView.findViewById(R.id.main_sync_task_view_empty_message);
-        if (mGp.applicationTheme == R.style.ModernDark) {
-            mSyncTaskView.setBackgroundColor(Color.rgb(8, 16, 31));
-            mGp.syncTaskEmptyMessage.setTextColor(Color.rgb(160, 178, 195));
+        {
+            boolean light = ThemeUtil.isLightThemeUsed(mActivity);
+            int surface = light ? Color.rgb(244, 247, 251) : Color.rgb(8, 16, 31);
+            int panel = light ? Color.WHITE : Color.rgb(27, 39, 59);
+            int accent = light ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239);
+            int primary = light ? Color.rgb(20, 34, 56) : Color.WHITE;
+            int secondary = light ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195);
+            mSyncTaskView.setBackgroundColor(surface);
+            mGp.syncTaskEmptyMessage.setTextColor(secondary);
             mGp.syncTaskEmptyMessage.setGravity(android.view.Gravity.CENTER);
             mGp.syncTaskListView.setDivider(null);
             TextView pageTitle = mSyncTaskView.findViewById(R.id.sync_task_page_title);
             TextView pageSubtitle = mSyncTaskView.findViewById(R.id.sync_task_page_subtitle);
-            pageTitle.setTextColor(Color.rgb(41, 197, 239));
-            pageSubtitle.setTextColor(Color.rgb(160, 178, 195));
+            pageTitle.setTextColor(primary);
+            pageSubtitle.setTextColor(secondary);
+            mSyncTaskView.findViewById(R.id.sync_overview_card).setBackground(roundedBackground(panel));
+            for (int id : new int[]{R.id.sync_overview_status, R.id.sync_task_pairs_heading}) {
+                ((TextView)mSyncTaskView.findViewById(id)).setTextColor(primary);
+            }
+            for (int id : new int[]{R.id.sync_overview_recent, R.id.sync_overview_schedule,
+                    R.id.sync_task_quick_title}) {
+                ((TextView)mSyncTaskView.findViewById(id)).setTextColor(secondary);
+            }
+            TextView statusLabel = (TextView)((LinearLayout)mSyncTaskView.findViewById(R.id.sync_overview_card)).getChildAt(0);
+            statusLabel.setTextColor(accent);
+            Button runButton = mSyncTaskView.findViewById(R.id.sync_overview_run);
+            runButton.setBackground(roundedBackground(accent));
+            runButton.setTextColor(light ? Color.WHITE : Color.rgb(8, 16, 31));
+            tintButtonIcon(runButton, light ? Color.WHITE : Color.rgb(8, 16, 31));
+            Button activityButton = mSyncTaskView.findViewById(R.id.sync_overview_activity);
+            activityButton.setBackground(roundedBackground(light ? Color.rgb(231, 240, 245) : Color.rgb(40, 56, 77)));
+            activityButton.setTextColor(primary);
             Button addButton = mSyncTaskView.findViewById(R.id.sync_task_page_add_button);
-            GradientDrawable addBackground = new GradientDrawable();
-            addBackground.setColor(Color.rgb(41, 197, 239));
-            addBackground.setCornerRadius(12 * getResources().getDisplayMetrics().density);
-            addButton.setBackground(addBackground);
-            addButton.setTextColor(Color.rgb(8, 16, 31));
+            addButton.setBackground(roundedBackground(accent));
+            addButton.setTextColor(light ? Color.WHITE : Color.rgb(8, 16, 31));
+            tintButtonIcon(addButton, light ? Color.WHITE : Color.rgb(8, 16, 31));
             Button exploreButton = mSyncTaskView.findViewById(R.id.sync_task_page_explore_button);
-            GradientDrawable exploreBackground = new GradientDrawable();
-            exploreBackground.setColor(Color.rgb(27, 39, 59));
-            exploreBackground.setCornerRadius(12 * getResources().getDisplayMetrics().density);
-            exploreButton.setBackground(exploreBackground);
-            exploreButton.setTextColor(Color.WHITE);
-            TextView quickTitle = mSyncTaskView.findViewById(R.id.sync_task_quick_title);
-            quickTitle.setTextColor(Color.rgb(160, 178, 195));
+            exploreButton.setBackground(roundedBackground(panel));
+            exploreButton.setTextColor(primary);
+            tintButtonIcon(exploreButton, accent);
             for (int buttonId : new int[]{R.id.sync_task_phone_to_nas, R.id.sync_task_nas_to_phone}) {
                 Button quickButton = mSyncTaskView.findViewById(buttonId);
-                GradientDrawable tileBackground = new GradientDrawable();
-                tileBackground.setColor(Color.rgb(27, 39, 59));
-                tileBackground.setCornerRadius(12 * getResources().getDisplayMetrics().density);
-                quickButton.setBackground(tileBackground);
-                quickButton.setTextColor(Color.WHITE);
+                quickButton.setBackground(roundedBackground(panel));
+                quickButton.setTextColor(primary);
+                tintButtonIcon(quickButton, accent);
             }
-            mSyncTaskView.findViewById(R.id.context_view_profile).setBackgroundColor(Color.rgb(27, 39, 59));
-        } else {
-            mGp.syncTaskEmptyMessage.setTextColor(mGp.themeColorList.text_color_warning);
+            mSyncTaskView.findViewById(R.id.context_view_profile).setBackgroundColor(panel);
         }
         mGp.syncScheduleListView = (ListView) mScheduleView.findViewById(R.id.main_schedule_list_view);
         mGp.syncHistoryListView = (ListView) mHistoryView.findViewById(R.id.main_history_list_view);
+        boolean historyLight = ThemeUtil.isLightThemeUsed(mActivity);
+        mHistoryView.setBackgroundColor(historyLight ? Color.rgb(244, 247, 251) : Color.rgb(8, 16, 31));
+        mGp.syncHistoryListView.setDivider(null);
+        ((TextView)mHistoryView.findViewById(R.id.history_page_title)).setTextColor(
+                historyLight ? Color.rgb(20, 34, 56) : Color.WHITE);
+        ((TextView)mHistoryView.findViewById(R.id.history_page_subtitle)).setTextColor(
+                historyLight ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195));
+        Button historySelect = mHistoryView.findViewById(R.id.history_select_button);
+        historySelect.setBackground(roundedBackground(historyLight ? Color.rgb(231, 240, 245) : Color.rgb(27, 39, 59)));
+        historySelect.setTextColor(historyLight ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239));
+        historySelect.setOnClickListener(v -> {
+            if (mGp.syncHistoryAdapter.isShowCheckBox()) {
+                mGp.syncHistoryAdapter.setShowCheckBox(false);
+                mGp.syncHistoryAdapter.setAllItemChecked(false);
+                setHistoryContextButtonNormalMode();
+            } else {
+                mGp.syncHistoryAdapter.setShowCheckBox(true);
+                setHistoryContextButtonSelectMode();
+            }
+            mGp.syncHistoryAdapter.notifyDataSetChanged();
+        });
 
         mGp.syncScheduleAdapter = new AdapterScheduleList(mActivity, R.layout.schedule_sync_list_item, mGp.syncScheduleList);
         mGp.syncScheduleListView.setAdapter(mGp.syncScheduleAdapter);
@@ -1358,12 +1236,11 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private void setupModernNavigation() {
-        if (mGp.applicationTheme != R.style.ModernDark) return;
         mMainTabLayout.setVisibility(View.GONE);
         findViewById(R.id.main_schedule_info_banner).setVisibility(View.GONE);
         LinearLayout nav = findViewById(R.id.main_modern_bottom_nav);
         nav.setVisibility(View.VISIBLE);
-        nav.setBackgroundColor(Color.rgb(27, 39, 59));
+        nav.setBackgroundColor(ThemeUtil.isLightThemeUsed(mActivity) ? Color.WHITE : Color.rgb(27, 39, 59));
         findViewById(R.id.main_nav_files).setOnClickListener(v ->
                 startActivity(new Intent(mActivity, FileExplorerActivity.class)));
         findViewById(R.id.main_nav_sync).setOnClickListener(v -> mMainTabLayout.setCurrentTabByName(mTabNameTask));
@@ -1372,25 +1249,76 @@ public class ActivityMain extends AppCompatActivity {
                 startActivity(new Intent(mActivity, ActivityPasswordSettings.class)));
         findViewById(R.id.main_nav_more).setOnClickListener(v -> new AlertDialog.Builder(mActivity)
                 .setTitle("More")
-                .setItems(new String[]{"Manage schedules", "Sync messages", "Settings", "App updates"}, (dialog, which) -> {
+                .setItems(new String[]{"Schedules", "Sync messages", "Settings and SMB connections", "App updates", "Device & app info", "Report an issue", "About"}, (dialog, which) -> {
                     if (which == 0) mMainTabLayout.setCurrentTabByName(mTabNameSchedule);
                     else if (which == 1) mMainTabLayout.setCurrentTabByName(mTabNameMessage);
                     else if (which == 2) startActivity(new Intent(mActivity, ActivitySettings.class));
-                    else startActivity(new Intent(mActivity, RepositoryUpdateActivity.class));
+                    else if (which == 3) startActivity(new Intent(mActivity, RepositoryUpdateActivity.class));
+                    else if (which == 4) showSystemInfo();
+                    else if (which == 5) openIssueTracker();
+                    else aboutSMBSync();
                 }).show());
         highlightModernNavigation(0);
     }
 
+    private void openIssueTracker() {
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/Sergi095/SMBsync-plus/issues/new"));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(mActivity, "No browser available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void highlightModernNavigation(int selectedPosition) {
-        if (mGp.applicationTheme != R.style.ModernDark) return;
         int selectedId = selectedPosition == 0 ? R.id.main_nav_sync
                 : selectedPosition == 2 ? R.id.main_nav_activity : R.id.main_nav_more;
+        int accent = ThemeUtil.isLightThemeUsed(mActivity) ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239);
+        int secondary = ThemeUtil.isLightThemeUsed(mActivity) ? Color.rgb(86, 105, 125) : Color.rgb(160, 178, 195);
         for (int id : new int[]{R.id.main_nav_files, R.id.main_nav_sync,
                 R.id.main_nav_activity, R.id.main_nav_security, R.id.main_nav_more}) {
             TextView item = findViewById(id);
-            item.setTextColor(id == selectedId ? Color.rgb(41, 197, 239) : Color.rgb(160, 178, 195));
+            int color = id == selectedId ? accent : secondary;
+            item.setTextColor(color);
+            android.graphics.drawable.Drawable[] icons = item.getCompoundDrawables();
+            if (icons[1] != null) icons[1].mutate().setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
             item.setTypeface(null, id == selectedId ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         }
+    }
+
+    private GradientDrawable roundedBackground(int color) {
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(color);
+        background.setCornerRadius(14 * getResources().getDisplayMetrics().density);
+        return background;
+    }
+
+    private void tintButtonIcon(Button button, int color) {
+        android.graphics.drawable.Drawable[] icons = button.getCompoundDrawables();
+        if (icons[0] != null) icons[0].mutate().setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
+    private void updateSyncOverview() {
+        if (mSyncTaskView == null || mGp.syncTaskList == null) return;
+        boolean empty = mGp.syncTaskList.isEmpty();
+        ((TextView)mSyncTaskView.findViewById(R.id.sync_overview_status)).setText(
+                mGp.syncThreadActive ? R.string.sync_overview_running :
+                        empty ? R.string.sync_overview_empty : R.string.sync_overview_ready);
+        Button run = mSyncTaskView.findViewById(R.id.sync_overview_run);
+        run.setEnabled(!empty && !mGp.syncThreadActive);
+        run.setAlpha(run.isEnabled() ? 1f : 0.5f);
+        mSyncTaskView.findViewById(R.id.sync_task_quick_setup).setVisibility(empty ? View.VISIBLE : View.GONE);
+        TextView recent = mSyncTaskView.findViewById(R.id.sync_overview_recent);
+        if (mGp.syncHistoryList != null && !mGp.syncHistoryList.isEmpty()) {
+            SyncHistoryItem last = mGp.syncHistoryList.get(0);
+            long checked = Math.max(0, last.sync_result_no_of_checked);
+            recent.setText(getString(R.string.sync_overview_recent, last.sync_date, last.sync_time,
+                    checked, last.sync_result_no_of_copied));
+        } else recent.setText(R.string.sync_overview_no_history);
+        TextView schedule = mSyncTaskView.findViewById(R.id.sync_overview_schedule);
+        schedule.setText(mGp.scheduleInfoText == null || mGp.scheduleInfoText.trim().isEmpty()
+                ? getString(R.string.sync_overview_schedule) : mGp.scheduleInfoText);
     }
 
     private void setButtonColor(Button btn) {
@@ -1510,8 +1438,8 @@ public class ActivityMain extends AppCompatActivity {
 //            menu.findItem(R.id.menu_top_request_grant_coarse_location).setVisible(false);
 //        }
 
-        if (mGp.settingScheduleSyncEnabled) menu.findItem(R.id.menu_top_scheduler).setIcon(R.drawable.ic_64_schedule);
-        else menu.findItem(R.id.menu_top_scheduler).setIcon(R.drawable.ic_64_schedule_disabled);
+        if (mGp.settingScheduleSyncEnabled) menu.findItem(R.id.menu_top_scheduler).setIcon(R.drawable.modern_schedule);
+        else menu.findItem(R.id.menu_top_scheduler).setIcon(R.drawable.modern_schedule);
 
         if (mGp.settingEnableUsbUuidList) {
             if (Build.VERSION.SDK_INT>=26) menu.findItem(R.id.menu_top_edit_force_usb_uuid_list).setVisible(true);
@@ -1778,7 +1706,7 @@ public class ActivityMain extends AppCompatActivity {
         String msg="";
         if (mGp.settingScheduleSyncEnabled) msg=mContext.getString(R.string.msgs_schedule_list_edit_confirm_scheduler_to_disabled);
         else msg=mContext.getString(R.string.msgs_schedule_list_edit_confirm_scheduler_to_enabled);
-        mCommonDlg.showCommonDialog(true,"W",msg,"",ntfy);
+        mUtil.showCommonDialog(true,"W",msg,"",ntfy);
     }
 
     private void addShortcut() {
@@ -1789,7 +1717,7 @@ public class ActivityMain extends AppCompatActivity {
 //
 //        if (Build.VERSION.SDK_INT>=26) {
 //            // Android 8 O API26 以降
-//            Icon icon = Icon.createWithResource(getApplicationContext(), R.drawable.auto_sync);
+//            Icon icon = Icon.createWithResource(getApplicationContext(), R.drawable.smbsync_plus_icon);
 //            ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), shortcutName)
 //                    .setShortLabel(shortcutName)
 //                    .setLongLabel(shortcutName)
@@ -1804,7 +1732,7 @@ public class ActivityMain extends AppCompatActivity {
 //            Intent intent = new Intent();
 //            intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 //            intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
-//            Parcelable iconResource=Intent.ShortcutIconResource.fromContext(this, R.drawable.auto_sync);
+//            Parcelable iconResource=Intent.ShortcutIconResource.fromContext(this, R.drawable.smbsync_plus_icon);
 //            intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 //            intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 //            setResult(RESULT_OK, intent);
@@ -2149,7 +2077,7 @@ public class ActivityMain extends AppCompatActivity {
                 LogFileListDialogFragment.newInstance(mGp.settingScreenTheme, false, getString(R.string.msgs_log_management_title),
                         getString(R.string.msgs_log_management_send_log_file_warning),
                         getString(R.string.msgs_log_management_enable_log_file_warning),
-                        "SMBSync2 log file");
+                        "SMBsync+ log file");
         lfm.showDialog(getSupportFragmentManager(), lfm, mGp, ntfy);
     }
 
@@ -3155,10 +3083,8 @@ public class ActivityMain extends AppCompatActivity {
         }
 
         if (no_of_files == 0) {
-            MessageDialogFragment mdf = MessageDialogFragment.newInstance(false, "E",
-                    mContext.getString(R.string.msgs_main_sync_history_result_log_not_found),
-                    "");
-            mdf.showDialog(getSupportFragmentManager(), mdf, null);
+            mUtil.showCommonDialog(false, "E",
+                    mContext.getString(R.string.msgs_main_sync_history_result_log_not_found), "", null);
             return;
         }
 
@@ -3219,10 +3145,8 @@ public class ActivityMain extends AppCompatActivity {
 
                 } else {
                     lf.delete();
-                    MessageDialogFragment mdf = MessageDialogFragment.newInstance(false, "W",
-                            mContext.getString(R.string.msgs_log_file_list_dlg_send_zip_file_cancelled),
-                            "");
-                    mdf.showDialog(getSupportFragmentManager(), mdf, null);
+                    mUtil.showCommonDialog(false, "W",
+                            mContext.getString(R.string.msgs_log_file_list_dlg_send_zip_file_cancelled), "", null);
                 }
                 pbdf.dismiss();
             }
@@ -3502,7 +3426,7 @@ public class ActivityMain extends AppCompatActivity {
         LinearLayout ll_dlg_view = (LinearLayout) dialog.findViewById(R.id.single_item_input_dlg_view);
         CommonUtilities.setDialogBoxOutline(mContext, ll_dlg_view);
 
-//        Drawable db = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.dialog_box_outline, null);
+//        Drawable db = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.modern_document, null);
 //        ll_dlg_view.setBackground(db);
 //        ll_dlg_view.setBackgroundColor(mGp.themeColorList.dialog_msg_background_color);
 
@@ -4126,6 +4050,8 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private void setHistoryContextButtonSelectMode() {
+        mHistoryView.findViewById(R.id.context_view_history).setVisibility(View.VISIBLE);
+        ((Button)mHistoryView.findViewById(R.id.history_select_button)).setText(R.string.history_done);
         int sel_cnt = mGp.syncHistoryAdapter.getItemSelectedCount();
         int tot_cnt = mGp.syncHistoryAdapter.getCount();
         setActionBarSelectMode(sel_cnt, tot_cnt);
@@ -4154,6 +4080,8 @@ public class ActivityMain extends AppCompatActivity {
 
     private void setHistoryContextButtonNormalMode() {
         setActionBarNormalMode();
+        mHistoryView.findViewById(R.id.context_view_history).setVisibility(View.GONE);
+        ((Button)mHistoryView.findViewById(R.id.history_select_button)).setText(R.string.history_select);
 
         if (!mGp.syncHistoryAdapter.isEmptyAdapter()) {
             mContextHistiryViewShare.setVisibility(ImageButton.INVISIBLE);
@@ -4498,7 +4426,7 @@ public class ActivityMain extends AppCompatActivity {
 
     private void createContextView() {
         mContextSyncTaskButtonAutoTask = (ImageButton) mSyncTaskView.findViewById(R.id.context_button_auto_task);
-        if (ThemeUtil.isLightThemeUsed(mActivity)) mContextSyncTaskButtonAutoTask.setImageResource(R.drawable.smbsync_auto_task_black);
+        if (ThemeUtil.isLightThemeUsed(mActivity)) mContextSyncTaskButtonAutoTask.setImageResource(R.drawable.modern_schedule);
         mContextSyncTaskButtonManualTask = (ImageButton) mSyncTaskView.findViewById(R.id.context_button_inactivate);
         mContextSyncTaskButtonAddSync = (ImageButton) mSyncTaskView.findViewById(R.id.context_button_add_sync);
         mContextSyncTaskButtonCopySyncTask = (ImageButton) mSyncTaskView.findViewById(R.id.context_button_copy);
@@ -4695,6 +4623,10 @@ public class ActivityMain extends AppCompatActivity {
         ContextButtonUtil.setButtonLabelListener(mActivity, mContextSyncTaskButtonAddSync, mContext.getString(R.string.msgs_prof_cont_label_add_sync));
         mSyncTaskView.findViewById(R.id.sync_task_page_add_button)
                 .setOnClickListener(v -> mContextSyncTaskButtonAddSync.performClick());
+        mSyncTaskView.findViewById(R.id.sync_overview_activity)
+                .setOnClickListener(v -> mMainTabLayout.setCurrentTabByName(mTabNameHistory));
+        mSyncTaskView.findViewById(R.id.sync_overview_run)
+                .setOnClickListener(v -> runAvailablePairs());
         mSyncTaskView.findViewById(R.id.sync_task_page_explore_button)
                 .setOnClickListener(v -> startActivity(new Intent(mActivity, FileExplorerActivity.class)));
         mSyncTaskView.findViewById(R.id.sync_task_phone_to_nas)
@@ -4954,11 +4886,9 @@ public class ActivityMain extends AppCompatActivity {
 
     //set bottom action buttons visibility (Auto, Manual, delete, move... buttons when a task is selected in main view)
     private void setSyncTaskContextButtonSelectMode() {
-        if (mGp.applicationTheme == R.style.ModernDark) {
-            mSyncTaskView.findViewById(R.id.context_view_profile).setVisibility(View.VISIBLE);
-            mSyncTaskView.findViewById(R.id.sync_task_page_add_button).setVisibility(View.GONE);
-            mSyncTaskView.findViewById(R.id.sync_task_page_explore_button).setVisibility(View.GONE);
-        }
+        mSyncTaskView.findViewById(R.id.context_view_profile).setVisibility(View.VISIBLE);
+        mSyncTaskView.findViewById(R.id.sync_task_page_add_button).setVisibility(View.GONE);
+        mSyncTaskView.findViewById(R.id.sync_task_page_explore_button).setVisibility(View.GONE);
         int sel_cnt = SyncTaskUtil.getSyncTaskSelectedItemCount(mGp.syncTaskAdapter);
         int tot_cnt = mGp.syncTaskAdapter.getCount();
         setActionBarSelectMode(sel_cnt, tot_cnt);
@@ -5066,11 +4996,9 @@ public class ActivityMain extends AppCompatActivity {
 
     private void setSyncTaskContextButtonNormalMode() {
         setActionBarNormalMode();
-        if (mGp.applicationTheme == R.style.ModernDark) {
-            mSyncTaskView.findViewById(R.id.context_view_profile).setVisibility(View.GONE);
-            mSyncTaskView.findViewById(R.id.sync_task_page_add_button).setVisibility(View.VISIBLE);
-            mSyncTaskView.findViewById(R.id.sync_task_page_explore_button).setVisibility(View.VISIBLE);
-        }
+        mSyncTaskView.findViewById(R.id.context_view_profile).setVisibility(View.GONE);
+        mSyncTaskView.findViewById(R.id.sync_task_page_add_button).setVisibility(View.VISIBLE);
+        mSyncTaskView.findViewById(R.id.sync_task_page_explore_button).setVisibility(View.VISIBLE);
 
         mGp.syncTaskAdapter.setAllItemChecked(false);
         mGp.syncTaskAdapter.setShowCheckBox(false);
@@ -5095,6 +5023,7 @@ public class ActivityMain extends AppCompatActivity {
         mContextSyncTaskViewUnselectAll.setVisibility(ImageButton.INVISIBLE);
 
         refreshOptionMenu();
+        updateSyncOverview();
     }
 
     private void setMessageScrollButtonVisibility() {
@@ -5218,12 +5147,12 @@ public class ActivityMain extends AppCompatActivity {
                 setContextButtonEnabled(mContextMessageButtonPinned, false);
                 mGp.freezeMessageViewScroll = !mGp.freezeMessageViewScroll;
                 if (mGp.freezeMessageViewScroll) {
-                    mContextMessageButtonPinned.setImageResource(R.drawable.context_button_pinned_active);
+                    mContextMessageButtonPinned.setImageResource(R.drawable.modern_pin);
                     CommonUtilities.showToastMessageShort(mActivity, mContext.getString(R.string.msgs_log_activate_pinned));
                     ContextButtonUtil.setButtonLabelListener(mActivity, mContextMessageButtonPinned,
                             mContext.getString(R.string.msgs_msg_cont_label_pinned_active));
                 } else {
-                    mContextMessageButtonPinned.setImageResource(R.drawable.context_button_pinned_inactive);
+                    mContextMessageButtonPinned.setImageResource(R.drawable.modern_pin);
                     mGp.syncMessageListView.setSelection(mGp.syncMessageListAdapter.getCount() - 1);
                     CommonUtilities.showToastMessageShort(mActivity, mContext.getString(R.string.msgs_log_inactivate_pinned));
                     ContextButtonUtil.setButtonLabelListener(mActivity, mContextMessageButtonPinned,
@@ -5281,9 +5210,9 @@ public class ActivityMain extends AppCompatActivity {
     private void setMessageContextButtonNormalMode() {
         mContextMessageViewPinned.setVisibility(LinearLayout.VISIBLE);
         if (mGp.freezeMessageViewScroll) {
-            mContextMessageButtonPinned.setImageResource(R.drawable.context_button_pinned_active);
+            mContextMessageButtonPinned.setImageResource(R.drawable.modern_pin);
         } else {
-            mContextMessageButtonPinned.setImageResource(R.drawable.context_button_pinned_inactive);
+            mContextMessageButtonPinned.setImageResource(R.drawable.modern_pin);
         }
         mContextMessageViewMoveTop.setVisibility(LinearLayout.VISIBLE);
         mContextMessageViewMoveBottom.setVisibility(LinearLayout.VISIBLE);
@@ -5410,6 +5339,18 @@ public class ActivityMain extends AppCompatActivity {
 
     }
 
+    private void runAvailablePairs() {
+        if (!isUiEnabled()) return;
+        ArrayList<SyncTaskItem> tasks = new ArrayList<>();
+        for (int i = 0; i < mGp.syncTaskAdapter.getCount(); i++) {
+            SyncTaskItem item = mGp.syncTaskAdapter.getItem(i);
+            if (!item.isSyncTaskError() && !item.isSyncTestMode()) tasks.add(item);
+        }
+        if (tasks.isEmpty()) {
+            CommonUtilities.showToastMessageShort(mActivity, getString(R.string.sync_overview_no_available));
+        } else startSyncTask(tasks);
+    }
+
     private void setUiEnabled() {
         mUtil.addDebugMsg(2, "I", CommonUtilities.getExecutedMethodName() + " entered");
         enableMainUi = true;
@@ -5497,6 +5438,7 @@ public class ActivityMain extends AppCompatActivity {
         mGp.progressSpinCancel.setOnClickListener(mGp.progressSpinCancelListener);
 
         ScheduleUtil.setSchedulerInfo(mActivity, mGp, mUtil);
+        updateSyncOverview();
 
         LogUtil.flushLog(mContext, mGp);
     }
@@ -5515,6 +5457,7 @@ public class ActivityMain extends AppCompatActivity {
         mGp.progressSpinView.setVisibility(LinearLayout.GONE);
 
         mGp.syncHistoryAdapter.notifyDataSetChanged();
+        updateSyncOverview();
 
         setUiEnabled();
     }

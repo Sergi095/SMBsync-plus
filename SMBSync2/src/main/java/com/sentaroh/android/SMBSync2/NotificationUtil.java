@@ -56,7 +56,7 @@ public class NotificationUtil {
 
     static final public void initNotification(GlobalParameters gwa, CommonUtilities util, Context c) {
         gwa.notificationManager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-        gwa.notification = new Notification(R.drawable.ic_48_smbsync_wait,
+        gwa.notification = new Notification(R.drawable.modern_notification,
                 c.getString(R.string.app_name), 0);
 
         gwa.notificationAppName = c.getString(R.string.app_name);
@@ -73,7 +73,7 @@ public class NotificationUtil {
         gwa.notificationBuilder.setContentIntent(gwa.notificationPendingIntent)
                 .setOngoing(true)
                 .setAutoCancel(false)
-                .setSmallIcon(R.drawable.ic_48_smbsync_wait)//smbsync_animation)
+                .setSmallIcon(R.drawable.modern_notification)//smbsync_animation)
                 .setContentTitle(gwa.notificationAppName)
                 .setContentText("")
                 .setWhen(0)
@@ -91,7 +91,7 @@ public class NotificationUtil {
         if (Build.VERSION.SDK_INT>=26) {
             NotificationChannel def_ch = new NotificationChannel(
                     "SMBSync2",
-                    "SMBSync2",
+                    "SMBsync+ sync status",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             def_ch.enableLights(false);

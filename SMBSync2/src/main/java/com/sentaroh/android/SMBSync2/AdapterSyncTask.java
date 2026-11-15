@@ -213,7 +213,7 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
             holder.ll_sync = (LinearLayout) v.findViewById(R.id.profile_list_sync_layout);
             holder.ll_entry = (LinearLayout) v.findViewById(R.id.profile_list_entry_layout);
             holder.ll_view = (LinearLayout) v.findViewById(R.id.profile_list_view);
-            int accent = ThemeUtil.isLightThemeUsed(mContext) ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239);
+            int accent = Color.rgb(0, 105, 138);
             GradientDrawable syncButton = new GradientDrawable();
             syncButton.setColor(accent);
             syncButton.setCornerRadius(12 * mContext.getResources().getDisplayMetrics().density);
@@ -319,24 +319,24 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
             if (o.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_INTERNAL)) {
                 if (master_dir.equals("")) holder.tv_row_master.setText(o.getMasterLocalMountPoint());
                 else holder.tv_row_master.setText(o.getMasterLocalMountPoint() + "/" + master_dir);
-                holder.iv_row_image_master.setImageResource(R.drawable.ic_32_mobile);
+                holder.iv_row_image_master.setImageResource(R.drawable.modern_phone);
             } else if (o.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SDCARD)) {
                 if (master_dir.equals("")) holder.tv_row_master.setText((mGp.safMgr.getSdcardRootPath()));
                 else holder.tv_row_master.setText((mGp.safMgr.getSdcardRootPath() + "/" + master_dir));
                 if (mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                    holder.iv_row_image_master.setImageResource(R.drawable.ic_32_sdcard_bad);
+                    holder.iv_row_image_master.setImageResource(R.drawable.modern_warning);
                     sync_btn_disable=true;
                 } else {
-                    holder.iv_row_image_master.setImageResource(R.drawable.ic_32_sdcard);
+                    holder.iv_row_image_master.setImageResource(R.drawable.modern_storage);
                 }
             } else if (o.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_USB)) {
                 if (master_dir.equals("")) holder.tv_row_master.setText((mGp.safMgr.getUsbRootPath()));
                 else holder.tv_row_master.setText((mGp.safMgr.getUsbRootPath() + "/" + master_dir));
                 if (mGp.safMgr.getUsbRootPath().equals(SafManager.UNKNOWN_USB_DIRECTORY)) {
-                    holder.iv_row_image_master.setImageResource(R.drawable.ic_32_usb_bad);
+                    holder.iv_row_image_master.setImageResource(R.drawable.modern_warning);
                     sync_btn_disable=true;
                 } else {
-                    holder.iv_row_image_master.setImageResource(R.drawable.ic_32_usb);
+                    holder.iv_row_image_master.setImageResource(R.drawable.modern_usb);
                 }
             } else if (o.getMasterFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SMB)) {
                 String host = o.getMasterSmbAddr();
@@ -346,43 +346,43 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
                 else {
                     holder.tv_row_master.setText("smb://" + host + "/" + share + "/"+ master_dir);
                 }
-                holder.iv_row_image_master.setImageResource(R.drawable.ic_32_server);
+                holder.iv_row_image_master.setImageResource(R.drawable.modern_server);
             }
             holder.tv_row_master.requestLayout();
             String target_dir = o.getTargetDirectoryName().startsWith("/")?o.getTargetDirectoryName().substring(1):o.getTargetDirectoryName();
             if (o.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_INTERNAL)) {
                 if (target_dir.equals("")) holder.tv_row_target.setText(o.getTargetLocalMountPoint());
                 else holder.tv_row_target.setText(o.getTargetLocalMountPoint() + "/" + target_dir);
-                holder.iv_row_image_target.setImageResource(R.drawable.ic_32_mobile);
+                holder.iv_row_image_target.setImageResource(R.drawable.modern_phone);
             } else if (o.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SDCARD)) {
                 if (target_dir.equals("")) holder.tv_row_target.setText((mGp.safMgr.getSdcardRootPath()));
                 else holder.tv_row_target.setText((mGp.safMgr.getSdcardRootPath() + "/" + target_dir));
                 if (mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_sdcard_bad);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_warning);
                     sync_btn_disable=true;
                 } else {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_sdcard);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_storage);
                 }
             } else if (o.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_USB)) {
                 if (target_dir.equals("")) holder.tv_row_target.setText((mGp.safMgr.getUsbRootPath()));
                 else holder.tv_row_target.setText((mGp.safMgr.getUsbRootPath() + "/" + target_dir));
                 if (mGp.safMgr.getUsbRootPath().equals(SafManager.UNKNOWN_USB_DIRECTORY)) {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_usb_bad);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_warning);
                     sync_btn_disable=true;
                 } else {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_usb);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_usb);
                 }
             } else if (o.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_ZIP)) {
-                holder.iv_row_image_target.setImageResource(R.drawable.ic_32_archive);
+                holder.iv_row_image_target.setImageResource(R.drawable.modern_archive);
                 if (!o.isTargetZipUseExternalSdcard())
                     holder.tv_row_target.setText((o.getTargetLocalMountPoint() + o.getTargetZipOutputFileName()));
                 else
                     holder.tv_row_target.setText((o.getTargetLocalMountPoint() + o.getTargetZipOutputFileName()));
                 if (o.isTargetZipUseExternalSdcard() && mGp.safMgr.getSdcardRootPath().equals(SafManager.UNKNOWN_SDCARD_DIRECTORY)) {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_sdcard_bad);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_warning);
                     sync_btn_disable=true;
                 } else {
-                    holder.iv_row_image_target.setImageResource(R.drawable.ic_32_archive);
+                    holder.iv_row_image_target.setImageResource(R.drawable.modern_archive);
                 }
             } else if (o.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_SMB)) {
                 String host = o.getTargetSmbAddr();
@@ -392,7 +392,7 @@ public class AdapterSyncTask extends ArrayAdapter<SyncTaskItem> {
                 else {
                     holder.tv_row_target.setText("smb://" + host + "/" + share + "/"+ target_dir);
                 }
-                holder.iv_row_image_target.setImageResource(R.drawable.ic_32_server);
+                holder.iv_row_image_target.setImageResource(R.drawable.modern_server);
             }
 
             holder.tv_row_target.requestLayout();

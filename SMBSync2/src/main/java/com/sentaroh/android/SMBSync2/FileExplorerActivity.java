@@ -61,7 +61,7 @@ public class FileExplorerActivity extends AppCompatActivity {
     private final ArrayList<Entry> visibleEntries = new ArrayList<>();
     private GlobalParameters gp;
     private LinearLayout rootView;
-    private boolean unlockAfterBackground;
+    private long lastHandledBackgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
     private boolean explorerLocked;
     private boolean unlockPromptVisible;
     private FrameLayout lockOverlay;
@@ -171,8 +171,10 @@ public class FileExplorerActivity extends AppCompatActivity {
         if (!gp.settingSecurityApplicationPasswordHashValue.equals(""))
             getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
         else getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
-        if (unlockAfterBackground || explorerLocked) {
-            unlockAfterBackground = false;
+        long backgroundEpoch = SMBsyncPlusApplication.backgroundEpoch();
+        boolean returnedFromBackground = backgroundEpoch != lastHandledBackgroundEpoch;
+        lastHandledBackgroundEpoch = backgroundEpoch;
+        if ((returnedFromBackground && !gp.appPasswordAuthValidated) || explorerLocked) {
             if (isProtected()) {
                 showExplorerLocked();
                 requestExplorerUnlock();
@@ -182,15 +184,10 @@ public class FileExplorerActivity extends AppCompatActivity {
     }
 
     @Override protected void onPause() {
-        if (isProtected() && !isChangingConfigurations()) {
-            showExplorerLocked();
-            unlockAfterBackground = true;
-        }
         super.onPause();
     }
 
     @Override protected void onStop() {
-        if (!isChangingConfigurations()) unlockAfterBackground = true;
         super.onStop();
     }
 

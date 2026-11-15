@@ -31,12 +31,74 @@
             android:layout_marginTop="4dp"
             android:text="@string/sync_task_page_subtitle"
             android:textAppearance="?android:attr/textAppearanceSmall" />
+        <LinearLayout
+            android:id="@+id/sync_overview_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sync_overview_title"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/sync_overview_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/sync_overview_ready"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/sync_overview_recent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="@string/sync_overview_no_history"
+                android:textSize="13sp" />
+            <TextView
+                android:id="@+id/sync_overview_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/sync_overview_schedule"
+                android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/sync_overview_run"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/modern_run_white"
+                    android:drawablePadding="5dp"
+                    android:gravity="center"
+                    android:text="@string/sync_overview_run"
+                    android:textAllCaps="false" />
+                <Button
+                    android:id="@+id/sync_overview_activity"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/sync_overview_activity"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+        </LinearLayout>
         <Button
             android:id="@+id/sync_task_page_explore_button"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:drawableLeft="@drawable/explorer_folder"
+            android:drawableLeft="@drawable/modern_files"
             android:drawablePadding="12dp"
             android:paddingLeft="16dp"
             android:gravity="center_vertical"
@@ -46,14 +108,18 @@
         <Button
             android:id="@+id/sync_task_page_add_button"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="52dp"
             android:layout_marginTop="10dp"
+            android:drawableLeft="@drawable/modern_add"
+            android:drawablePadding="8dp"
+            android:gravity="center"
             android:text="@string/sync_task_page_add"
             android:textAllCaps="false"
             android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/sync_task_quick_setup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -75,9 +141,9 @@
             <Button
                 android:id="@+id/sync_task_phone_to_nas"
                 android:layout_width="0dp"
-                android:layout_height="88dp"
+                android:layout_height="62dp"
                 android:layout_weight="1"
-                android:drawableTop="@drawable/ic_32_mobile"
+                android:drawableLeft="@drawable/modern_phone"
                 android:drawablePadding="5dp"
                 android:gravity="center"
                 android:text="@string/sync_task_phone_to_nas"
@@ -85,16 +151,28 @@
             <Button
                 android:id="@+id/sync_task_nas_to_phone"
                 android:layout_width="0dp"
-                android:layout_height="88dp"
+                android:layout_height="62dp"
                 android:layout_marginLeft="8dp"
                 android:layout_weight="1"
-                android:drawableTop="@drawable/ic_32_server"
+                android:drawableLeft="@drawable/modern_server"
                 android:drawablePadding="5dp"
                 android:gravity="center"
                 android:text="@string/sync_task_nas_to_phone"
                 android:textAllCaps="false" />
         </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/sync_task_pairs_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="8dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="4dp"
+        android:text="@string/sync_task_pairs_heading"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/main_sync_task_view_empty_message"

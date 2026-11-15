@@ -2,31 +2,31 @@
     xmlns:appv7="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_top_scheduler"
         android:title="@string/msgs_menu_scheduler"
-        android:icon="@drawable/ic_64_schedule"
+        android:icon="@drawable/modern_schedule"
         appv7:showAsAction="always"
         />
     <item android:id="@+id/menu_top_sync"
           android:title="@string/msgs_menu_sync"
-          android:icon="@drawable/ic_32_sync"
+          android:icon="@drawable/modern_sync"
           appv7:showAsAction="always"
           />
     <item android:id="@+id/menu_top_exec_schedule"
         android:title="@string/msgs_menu_exec_schedule"
-        android:icon="@drawable/ic_128_execute_schedule"
+        android:icon="@drawable/modern_schedule"
         appv7:showAsAction="always"
         />
     <item android:id="@+id/menu_top_browse_log"
           android:title="@string/msgs_menu_browse_logfile" 
-          android:icon="@drawable/ic_32_bw_browse_text"
+          android:icon="@drawable/modern_document"
           />
     
     <item android:id="@+id/menu_top_export"
           android:title="@string/msgs_menu_export" 
-          android:icon="@android:drawable/ic_menu_save"
+          android:icon="@drawable/modern_export"
           />
     <item android:id="@+id/menu_top_import"
           android:title="@string/msgs_menu_import"
-          android:icon="@android:drawable/ic_menu_set_as"
+          android:icon="@drawable/modern_import"
           />
     <item android:id="@+id/menu_top_add_shortcut"
           android:title="@string/msgs_menu_add_shortcut"
@@ -40,7 +40,7 @@
 
     <item android:id="@+id/menu_top_settings"
           android:title="@string/msgs_menu_settings"
-          android:icon="@android:drawable/ic_menu_preferences"
+          android:icon="@drawable/modern_settings"
           />
 
     <item android:id="@+id/menu_top_show_battery_optimization"
@@ -49,7 +49,7 @@
 
     <item android:id="@+id/menu_top_kill"
           android:title="@string/msgs_menu_kill" 
-          android:icon="@android:drawable/ic_menu_close_clear_cancel"
+          android:icon="@drawable/modern_close"
           />
 
     <item android:id="@+id/menu_top_select_storage"
@@ -66,7 +66,7 @@
 
     <item android:id="@+id/menu_top_about"
           android:title="@string/msgs_menu_about" 
-          android:icon="@android:drawable/ic_menu_info_details"
+          android:icon="@drawable/modern_help"
           />
     
     <item android:id="@+id/menu_top_list_storage"

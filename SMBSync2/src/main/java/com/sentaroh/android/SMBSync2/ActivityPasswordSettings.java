@@ -87,7 +87,7 @@ public class ActivityPasswordSettings extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        mUtil = new CommonUtilities(mActivity.getApplicationContext(), "AppPswd", mGp, getSupportFragmentManager());
+        mUtil = new CommonUtilities(mActivity, "AppPswd", mGp, getSupportFragmentManager());
 
         commonDlg = new CommonDialog(mActivity, getSupportFragmentManager());
         setResult(RESULT_OK);
@@ -114,6 +114,8 @@ public class ActivityPasswordSettings extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        if (!mGp.appPasswordAuthValidated) mPreferenceView.setVisibility(LinearLayout.INVISIBLE);
+
         NotifyEvent ntfy_auth=new NotifyEvent(mContext);
         ntfy_auth.setListener(new NotifyEvent.NotifyEventListener() {
             @Override
@@ -130,7 +132,8 @@ public class ActivityPasswordSettings extends AppCompatActivity {
                 finish();
             }
         });
-        ApplicationPasswordUtil.applicationPasswordAuthentication(mGp, mActivity,
+        if (mGp.appPasswordAuthValidated) ntfy_auth.notifyToListener(true, null);
+        else ApplicationPasswordUtil.applicationPasswordAuthentication(mGp, mActivity,
                 getSupportFragmentManager(), mUtil, true, ntfy_auth, ApplicationPasswordUtil.APPLICATION_PASSWORD_RESOURCE_INVOKE_SECURITY_SETTINGS);
 
     }

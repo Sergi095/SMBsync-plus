@@ -2103,11 +2103,11 @@ public class SyncTaskUtil {
         final Button btn_refresh = (Button) dialog.findViewById(R.id.common_file_selector_refresh_btn);
 
         if (mGp.isScreenThemeIsLight()) {
-            btn_up.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_dark, 0, 0, 0);
-            btn_top.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_top_dark, 0, 0, 0);
+            btn_up.setCompoundDrawablesWithIntrinsicBounds(R.drawable.modern_up, 0, 0, 0);
+            btn_top.setCompoundDrawablesWithIntrinsicBounds(R.drawable.modern_up, 0, 0, 0);
         } else {
-            btn_up.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_up_light, 0, 0, 0);
-            btn_top.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_16_go_top_light, 0, 0, 0);
+            btn_up.setCompoundDrawablesWithIntrinsicBounds(R.drawable.modern_up, 0, 0, 0);
+            btn_top.setCompoundDrawablesWithIntrinsicBounds(R.drawable.modern_up, 0, 0, 0);
         }
 
         CommonDialog.setDlgBoxSizeLimit(dialog, true);
