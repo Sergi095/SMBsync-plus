@@ -40,6 +40,10 @@
     <string name="history_page_title">Activity</string>
     <string name="history_page_subtitle">Recent runs, checked files, and results</string>
     <string name="sync_history_last_checked_label">Last checked file</string>
+    <string name="sync_history_checked_files">Files checked</string>
+    <string name="sync_history_view_all_files">View all %1$d files ›</string>
+    <string name="sync_history_loading_files">Loading files…</string>
+    <string name="sync_history_no_files">No checked files were saved for this run.</string>
     <string name="sync_message_folder_pair">Folder pair: %1$s</string>
     <string name="history_select">Select</string>
     <string name="history_done">Done</string>

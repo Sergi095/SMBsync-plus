@@ -145,6 +145,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textAppearance="?android:attr/textAppearanceSmall" />
+        <TextView
+            android:id="@+id/sync_history_checked_files_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/sync_history_checked_files_more"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
     <CheckBox
         android:id="@+id/sync_history_list_view_cb"

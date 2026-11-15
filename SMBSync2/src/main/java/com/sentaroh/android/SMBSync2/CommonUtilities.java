@@ -962,6 +962,9 @@ public final class CommonUtilities {
                                 if (l_array.length >= 18) {
                                     hli.sync_last_checked_file_name = l_array[17];
                                 }
+                                if (l_array.length >= 19) {
+                                    hli.sync_checked_file_list_path = l_array[18];
+                                }
                             }
                             hl.add(hli);
                         } catch (Exception e) {
@@ -1060,6 +1063,7 @@ public final class CommonUtilities {
                                 .append(shli.sync_result_no_of_checked).append("\u0001")             //16
                                 .append(shli.sync_last_checked_file_name == null ? "" :
                                         shli.sync_last_checked_file_name.replace('\u0001', ' ').replace('\n', ' ').replace('\r', ' ')) //17
+                                .append("\u0001").append(shli.sync_checked_file_list_path) //18
                                 .append("\n");
 
                         bw.append(sb_buf.toString());
@@ -1068,6 +1072,9 @@ public final class CommonUtilities {
                         if (!shli.sync_result_file_path.equals("")) {
                             File tlf = new File(shli.sync_result_file_path);
                             if (tlf.exists()) tlf.delete();
+                        }
+                        if (!shli.sync_checked_file_list_path.isEmpty()) {
+                            new File(shli.sync_checked_file_list_path).delete();
                         }
                     }
                 }

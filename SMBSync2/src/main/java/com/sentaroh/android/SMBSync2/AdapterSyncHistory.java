@@ -175,6 +175,8 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
             holder.tv_prof = (TextView) v.findViewById(R.id.sync_history_list_view_prof);
             holder.tv_file_label = (TextView) v.findViewById(R.id.sync_history_list_view_file_label);
             holder.tv_pair_name = (TextView) v.findViewById(R.id.sync_history_list_view_pair_name);
+            holder.tv_file_preview = (TextView) v.findViewById(R.id.sync_history_checked_files_preview);
+            holder.tv_file_more = (TextView) v.findViewById(R.id.sync_history_checked_files_more);
             holder.tv_status = (TextView) v.findViewById(R.id.sync_history_list_view_status);
             holder.tv_cnt_copied = (TextView) v.findViewById(R.id.sync_history_list_view_count_copied);
             holder.tv_cnt_deleted = (TextView) v.findViewById(R.id.sync_history_list_view_count_deleted);
@@ -221,6 +223,8 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                         holder.tv_pair_name}) {
                     text.setTextColor(secondary);
                 }
+                holder.tv_file_preview.setTextColor(secondary);
+                holder.tv_file_more.setTextColor(light ? Color.rgb(0, 105, 138) : Color.rgb(41, 197, 239));
 //        		holder.ll_main.setBackgroundDrawable(ll_default);
 
                 holder.tv_seq.setText(String.format("%1$3d)", position + 1));
@@ -277,6 +281,22 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
                 holder.tv_checked.setVisibility(o.sync_result_no_of_checked >= 0 ? TextView.VISIBLE : TextView.GONE);
                 if (o.sync_result_no_of_checked >= 0)
                     holder.tv_checked.setText("  ·  Checked " + o.sync_result_no_of_checked);
+                if (o.sync_checked_file_list_path != null && !o.sync_checked_file_list_path.isEmpty()) {
+                    if (o.sync_checked_file_preview == null)
+                        o.sync_checked_file_preview = CheckedFilesStore.read(o.sync_checked_file_list_path, 4);
+                    if (!o.sync_checked_file_preview.isEmpty()) {
+                        StringBuilder preview = new StringBuilder(mContext.getString(R.string.sync_history_checked_files));
+                        for (String file : o.sync_checked_file_preview) preview.append("\n• ").append(file);
+                        holder.tv_file_preview.setText(preview.toString());
+                        holder.tv_file_preview.setVisibility(View.VISIBLE);
+                    } else holder.tv_file_preview.setVisibility(View.GONE);
+                    holder.tv_file_more.setText(mContext.getString(R.string.sync_history_view_all_files,
+                            o.sync_result_no_of_checked));
+                    holder.tv_file_more.setVisibility(o.sync_result_no_of_checked > 4 ? View.VISIBLE : View.GONE);
+                } else {
+                    holder.tv_file_preview.setVisibility(View.GONE);
+                    holder.tv_file_more.setVisibility(View.GONE);
+                }
 //            	holder.tv_cnt_ignored.setText(Integer.toString(o.sync_result_no_of_ignored));
 //            	holder.tv_cnt_retry.setText(Integer.toString(o.sync_result_no_of_retry));
 
@@ -305,6 +325,8 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
             } else {
                 holder.tv_file_label.setVisibility(View.GONE);
                 holder.tv_pair_name.setVisibility(View.GONE);
+                holder.tv_file_preview.setVisibility(View.GONE);
+                holder.tv_file_more.setVisibility(View.GONE);
                 holder.tv_seq.setVisibility(TextView.GONE);
                 holder.tv_date.setVisibility(TextView.GONE);
                 holder.tv_time.setVisibility(TextView.GONE);
@@ -326,6 +348,7 @@ public class AdapterSyncHistory extends ArrayAdapter<SyncHistoryItem> {
         TextView tv_error, tv_seq, tv_req, tv_mode;
         TextView tv_et;
         TextView tv_tr;
+        TextView tv_file_preview, tv_file_more;
         LinearLayout ll_count, ll_main;
     }
 

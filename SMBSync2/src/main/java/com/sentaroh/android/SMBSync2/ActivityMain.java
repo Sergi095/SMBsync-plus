@@ -75,6 +75,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -2973,7 +2974,9 @@ public class ActivityMain extends AppCompatActivity {
                             setHistoryContextButtonSelectMode();
                             mGp.syncHistoryListView.setEnabled(true);
                         } else {
-                            if (item.sync_result_file_path!=null && !item.sync_result_file_path.equals("")) {
+                            if (item.sync_checked_file_list_path != null && !item.sync_checked_file_list_path.isEmpty()) {
+                                showCheckedFiles(item);
+                            } else if (item.sync_result_file_path!=null && !item.sync_result_file_path.equals("")) {
                                 File lf=new File(item.sync_result_file_path);
                                 if (lf.exists()) {
                                     Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -3016,6 +3019,36 @@ public class ActivityMain extends AppCompatActivity {
             }
         });
         mGp.syncHistoryAdapter.setNotifyCheckBoxEventHandler(ntfy);
+    }
+
+    private void showCheckedFiles(SyncHistoryItem item) {
+        final int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        LinearLayout container = new LinearLayout(mActivity);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(padding, padding, padding, padding);
+        TextView status = new TextView(mActivity);
+        status.setText(R.string.sync_history_loading_files);
+        container.addView(status);
+        ListView files = new ListView(mActivity);
+        container.addView(files, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, padding * 24));
+        AlertDialog dialog = new AlertDialog.Builder(mActivity)
+                .setTitle(getString(R.string.sync_history_checked_files) + " · " + item.sync_prof)
+                .setView(container)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        dialog.show();
+        new Thread(() -> {
+            ArrayList<String> paths = CheckedFilesStore.read(item.sync_checked_file_list_path, Integer.MAX_VALUE);
+            mActivity.runOnUiThread(() -> {
+                if (!dialog.isShowing()) return;
+                if (paths.isEmpty()) status.setText(R.string.sync_history_no_files);
+                else {
+                    status.setVisibility(View.GONE);
+                    files.setAdapter(new ArrayAdapter<>(mActivity, android.R.layout.simple_list_item_1, paths));
+                }
+            });
+        }, "CheckedFilesReader").start();
     }
 
     private void setHistoryViewLongClickListener() {
@@ -4158,6 +4191,8 @@ public class ActivityMain extends AppCompatActivity {
                                 mUtil.addDebugMsg(1, "I", "Sync history log file deleted, fp=" + result_fp);
                             }
                         }
+                        String checked_fp = mGp.syncHistoryAdapter.getItem(i).sync_checked_file_list_path;
+                        if (checked_fp != null && !checked_fp.isEmpty()) new File(checked_fp).delete();
                         mUtil.addDebugMsg(1, "I", "Sync history item deleted, item=" + mGp.syncHistoryAdapter.getItem(i).sync_prof);
                         mGp.syncHistoryAdapter.remove(mGp.syncHistoryAdapter.getItem(i));
                     }

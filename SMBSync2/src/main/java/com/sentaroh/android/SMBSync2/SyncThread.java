@@ -150,6 +150,8 @@ public class SyncThread extends Thread {
         public int totalCopyCount, totalDeleteCount, totalIgnoreCount = 0, totalRetryCount = 0;
         public long checkedSourceFileCount = 0;
         public String lastCheckedFileName = "";
+        public CheckedFilesStore.Writer checkedFilesWriter = null;
+        public String checkedFilesPath = "";
         public long lastScanProgressAt = 0;
 
         public boolean lastModifiedIsFunctional = true;
@@ -621,6 +623,18 @@ public class SyncThread extends Thread {
         mStwa.checkedSourceFileCount = 0;
         mStwa.lastCheckedFileName = "";
         mStwa.lastScanProgressAt = 0;
+        if (mStwa.checkedFilesWriter != null) {
+            mStwa.checkedFilesWriter.finish();
+            mStwa.checkedFilesWriter.file.delete();
+            mStwa.checkedFilesWriter = null;
+        }
+        mStwa.checkedFilesPath = "";
+        try {
+            mStwa.checkedFilesWriter = new CheckedFilesStore.Writer(mStwa.context);
+        } catch (IOException e) {
+            mStwa.checkedFilesWriter = null;
+            mStwa.util.addLogMsg("W", "Could not save the checked file list: " + e.getMessage());
+        }
 
         if (sti.getTargetFolderType().equals(SyncTaskItem.SYNC_FOLDER_TYPE_INTERNAL)) {
             if (sti.isSyncDetectLastModifiedBySmbsync()) mStwa.lastModifiedIsFunctional = false;
@@ -646,6 +660,10 @@ public class SyncThread extends Thread {
     }
 
     private void postProcessSyncResult(SyncTaskItem sti, int sync_result, long et) {
+        if (mStwa.checkedFilesWriter != null) {
+            mStwa.checkedFilesPath = mStwa.checkedFilesWriter.finish();
+            mStwa.checkedFilesWriter = null;
+        }
         long msecs = et;
         long hr = TimeUnit.MILLISECONDS.toHours(msecs); msecs -= TimeUnit.HOURS.toMillis(hr);
         long min = TimeUnit.MILLISECONDS.toMinutes(msecs); msecs -= TimeUnit.MINUTES.toMillis(min);
@@ -1016,6 +1034,10 @@ public class SyncThread extends Thread {
                             mStwa.context.getString(R.string.msgs_mirror_task_result_error_ended));
 
                     if (mStwa.currentSTI != null) {
+                        if (mStwa.checkedFilesWriter != null) {
+                            mStwa.checkedFilesPath = mStwa.checkedFilesWriter.finish();
+                            mStwa.checkedFilesWriter = null;
+                        }
                         addHistoryList(mStwa.currentSTI, SyncHistoryItem.SYNC_STATUS_ERROR,
                                 mStwa.totalCopyCount, mStwa.totalDeleteCount, mStwa.totalIgnoreCount, mStwa.totalRetryCount,
                                 end_msg, "", "");
@@ -3140,6 +3162,7 @@ public class SyncThread extends Thread {
                                                long file_size, long last_modified_time) {
         stwa.checkedSourceFileCount++;
         stwa.lastCheckedFileName = new java.io.File(full_path).getName();
+        if (stwa.checkedFilesWriter != null) stwa.checkedFilesWriter.add(relative_file_path);
         long scanTime = System.currentTimeMillis();
         if (stwa.checkedSourceFileCount == 1 || scanTime - stwa.lastScanProgressAt >= 300) {
             stwa.lastScanProgressAt = scanTime;
@@ -4421,6 +4444,7 @@ public class SyncThread extends Thread {
         hli.sync_result_no_of_retry = retry_cnt;
         hli.sync_result_no_of_checked = mStwa.checkedSourceFileCount;
         hli.sync_last_checked_file_name = mStwa.lastCheckedFileName;
+        hli.sync_checked_file_list_path = mStwa.checkedFilesPath;
         //hli.sync_req = mGp.syncThreadRequestID;
         hli.sync_req = mGp.syncThreadRequestIDdisplay; //for history, we save the translated ID to display
         hli.sync_error_text = error_msg;
