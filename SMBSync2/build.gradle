@@ -23,8 +23,8 @@ android {
         targetSdkVersion 35
 
 //
-        versionCode 301
-        versionName "2.55-plus.14"
+        versionCode 302
+        versionName "2.55-plus.15"
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_17
