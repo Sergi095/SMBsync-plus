@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="storage_access_title">Allow file access</string>
+    <string name="storage_access_explanation">SMBsync+ needs access to files on this device to browse and sync your folders. Enable “Allow access to manage all files” in Android settings.</string>
+    <string name="storage_access_open_settings">Open Android settings</string>
+    <string name="storage_access_manual_settings">Open Android Settings, find SMBsync+ under Apps, and enable All files access. Then return here.</string>
     <string name="sync_network_any_connected">Any connected network (Wi-Fi, mobile data, or VPN)</string>
     <string name="sync_scan_started">Checking source files…</string>
     <string name="sync_scan_progress">Files checked: %1$d · %2$s</string>

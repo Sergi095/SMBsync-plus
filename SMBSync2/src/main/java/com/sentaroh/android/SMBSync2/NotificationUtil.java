@@ -61,13 +61,13 @@ public class NotificationUtil {
 
         gwa.notificationAppName = c.getString(R.string.app_name);
 
-        gwa.notificationIntent = new Intent(c, ActivityMain.class);
+        gwa.notificationIntent = new Intent(c, StorageAccessActivity.class);
         gwa.notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         gwa.notificationIntent.setAction(Intent.ACTION_MAIN);
         gwa.notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         gwa.notificationPendingIntent = PendingIntent.getActivity(c, 0, gwa.notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
 //        gwa.notificationLargeIcon = BitmapFactory.decodeResource(c.getResources(), gwa.notificationSmallIcon);
         gwa.notificationBuilder = new NotificationCompat.Builder(c);
         gwa.notificationBuilder.setContentIntent(gwa.notificationPendingIntent)
@@ -270,8 +270,9 @@ public class NotificationUtil {
             else builder.setChannelId(NOTIFICATION_CHANNEL_DEFAULT);
         }
         if (gwa.callbackStub != null || (gwa.syncMessageList != null && gwa.syncMessageList.size() > 0)) {
-            Intent activity_intent = new Intent(c, ActivityMain.class);
-            PendingIntent activity_pi = PendingIntent.getActivity(c, 0, activity_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent activity_intent = new Intent(c, StorageAccessActivity.class);
+            PendingIntent activity_pi = PendingIntent.getActivity(c, 0, activity_intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
             builder.setContentIntent(activity_pi);
         }
         if (isNotificationEnabled(gwa)) {

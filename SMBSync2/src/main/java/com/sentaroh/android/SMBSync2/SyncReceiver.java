@@ -30,6 +30,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
@@ -65,6 +66,7 @@ public class SyncReceiver extends BroadcastReceiver {
     @SuppressLint("Wakelock")
     @Override
     final public void onReceive(Context c, Intent received_intent) {
+        if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) return;
         WakeLock wl =
                 ((PowerManager) c.getSystemService(Context.POWER_SERVICE))
                         .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK
@@ -211,10 +213,14 @@ public class SyncReceiver extends BroadcastReceiver {
                 in.setAction(SCHEDULER_INTENT_TIMER_EXPIRED);
                 in.putExtra(SCHEDULER_SCHEDULE_NAME_KEY, sched_names);
                 in.setClass(mContext, SyncReceiver.class);
-                PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, in,
+                        PendingIntent.FLAG_UPDATE_CURRENT | immutablePendingIntentFlag());
                 AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
                 try {
-                    if (Build.VERSION.SDK_INT >= 23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pi);
+                    if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()) {
+                        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pi);
+                        mLog.addDebugMsg(1, "W", "Exact alarm access unavailable; scheduled an approximate run.");
+                    } else if (Build.VERSION.SDK_INT >= 23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pi);
                     else am.set(AlarmManager.RTC_WAKEUP, time, pi);
                 } catch(Exception e) {
                     String stm= MiscUtil.getStackTraceString(e);
@@ -237,7 +243,8 @@ public class SyncReceiver extends BroadcastReceiver {
         Intent iw = new Intent();
         iw.setAction(SCHEDULER_INTENT_TIMER_EXPIRED);
         iw.setClass(mContext, SyncReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, iw, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, iw,
+                PendingIntent.FLAG_NO_CREATE | immutablePendingIntentFlag());
         if (pi == null) {
             return false;
         } else {
@@ -250,9 +257,14 @@ public class SyncReceiver extends BroadcastReceiver {
         Intent in = new Intent();
         in.setClass(mContext, SyncReceiver.class);
         in.setAction(SCHEDULER_INTENT_TIMER_EXPIRED);
-        PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, in,
+                PendingIntent.FLAG_CANCEL_CURRENT | immutablePendingIntentFlag());
         AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pi);
+    }
+
+    private static int immutablePendingIntentFlag() {
+        return Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0;
     }
 
 }

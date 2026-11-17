@@ -176,12 +176,14 @@ public class ActivityMain extends AppCompatActivity {
     private boolean enableMainUi = true;
 
     private boolean mSyncTaskListCreateRequired=false;
+    private boolean storageAccessRedirected=false;
 
     private String mTabNameTask="Task", mTabNameSchedule="Schedule", mTabNameHistory="History", mTabNameMessage="Message";
 
     @Override
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered.");
         out.putString("currentTab", mCurrentTab);
     }
@@ -189,6 +191,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle in) {
         super.onRestoreInstanceState(in);
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered.");
         mCurrentTab = in.getString("currentTab");
         if (mGp.activityIsFinished) mRestoreType = RESTART_BY_KILLED;
@@ -206,6 +209,13 @@ public class ActivityMain extends AppCompatActivity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (!StorageAccessActivity.hasAccess()) {
+            super.onCreate(savedInstanceState);
+            storageAccessRedirected=true;
+            startActivity(new Intent(this, StorageAccessActivity.class));
+            finish();
+            return;
+        }
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
@@ -344,6 +354,17 @@ public class ActivityMain extends AppCompatActivity {
         if (main != null) main.setVisibility(View.VISIBLE);
         if (mLockOverlay != null) mLockOverlay.setVisibility(View.GONE);
         if (getSupportActionBar() != null) getSupportActionBar().show();
+        requestNotificationPermissionOnce();
+    }
+
+    private void requestNotificationPermissionOnce() {
+        if (Build.VERSION.SDK_INT < 33
+                || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                || getPreferences(MODE_PRIVATE).getBoolean("notification_permission_requested", false)) return;
+        getPreferences(MODE_PRIVATE).edit().putBoolean("notification_permission_requested", true).apply();
+        mUiHandler.post(() -> {
+            if (!isFinishing()) requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+        });
     }
 
     private void requestAppUnlock() {
@@ -370,6 +391,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered, " + "mStartStatus=" + mStartStatus+", mRestoreType="+ mRestoreType);
 
     }
@@ -377,6 +399,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered, " + "mStartStatus=" + mStartStatus+", mRestoreType="+ mRestoreType);
 
         if (mStartStatus == START_STATUS_COMPLETED) {
@@ -583,12 +606,14 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered, " + "mStartStatus=" + mStartStatus);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered " + ",currentView=" + mCurrentTab +
                 ", getChangingConfigurations=" + String.format("0x%08x", getChangingConfigurations()));
         if (!isTaskTermination) saveTaskData();
@@ -598,6 +623,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered");
         setActivityForeground(false);
     }
@@ -625,6 +651,7 @@ public class ActivityMain extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (storageAccessRedirected) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered, " +
                 "isFinishing=" + isFinishing() +
                 ", changingConfigurations=" + String.format("0x%08x", getChangingConfigurations()));
@@ -2522,6 +2549,10 @@ public class ActivityMain extends AppCompatActivity {
 
     private NotifyEvent mNtfyExternalStoragePermission=null;
     private void checkRequiredPermissions(final NotifyEvent p_ntfy) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            p_ntfy.notifyToListener(true, null);
+            return;
+        }
         if (Build.VERSION.SDK_INT >= 23) {
             mUtil.addDebugMsg(1, "I", "Prermission WriteExternalStorage=" + checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) +
                     ", WakeLock=" + checkSelfPermission(Manifest.permission.WAKE_LOCK));

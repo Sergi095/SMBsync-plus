@@ -419,7 +419,9 @@ public class GlobalParameters extends CommonGlobalParms {
             externalStorageIsMounted = true;
         }
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            externalStorageAccessIsPermitted = Environment.isExternalStorageManager();
+        } else if (Build.VERSION.SDK_INT >= 23) {
             externalStorageAccessIsPermitted =
                     (c.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
         } else {

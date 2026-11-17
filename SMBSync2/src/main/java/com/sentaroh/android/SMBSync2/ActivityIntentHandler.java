@@ -63,6 +63,12 @@ public class ActivityIntentHandler extends Activity {
         setContentView(R.layout.activity_transrucent);
         final Context c=ActivityIntentHandler.this;
 
+        if (!StorageAccessActivity.hasAccess()) {
+            startActivity(new Intent(this, StorageAccessActivity.class));
+            finish();
+            return;
+        }
+
         if (mGp == null) {
             mGp =new GlobalParameters();
             mGp.initGlobalParamter(c);

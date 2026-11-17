@@ -73,6 +73,11 @@ public class ShortcutAutoSync extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!StorageAccessActivity.hasAccess()) {
+            startActivity(new Intent(this, StorageAccessActivity.class));
+            finish();
+            return;
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_transrucent);
         mActivity=ShortcutAutoSync.this;
@@ -90,17 +95,20 @@ public class ShortcutAutoSync extends FragmentActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
     }
 
     @Override
     public void onRestart() {
         super.onRestart();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
     }
 
     final public void onResume() {
         super.onResume();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
 
         if (restartStatus == 0) {
@@ -165,6 +173,7 @@ public class ShortcutAutoSync extends FragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
         // Application process is follow
 
@@ -174,6 +183,7 @@ public class ShortcutAutoSync extends FragmentActivity {
     @Override
     public void onStop() {
         super.onStop();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
         // Application process is follow
 
@@ -183,6 +193,7 @@ public class ShortcutAutoSync extends FragmentActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mUtil==null) return;
         mUtil.addDebugMsg(1, "I", CommonUtilities.getExecutedMethodName() + " entered restartStaus=" + restartStatus);
         // Application process is follow
         System.gc();

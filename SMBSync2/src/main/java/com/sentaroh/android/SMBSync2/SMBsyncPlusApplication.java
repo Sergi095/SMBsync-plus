@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -33,6 +35,7 @@ public final class SMBsyncPlusApplication extends Application implements Applica
             handler.removeCallbacks(pendingBackground);
             pendingBackground = null;
         }
+        if (activity instanceof StorageAccessActivity || !StorageAccessActivity.hasAccess()) return;
         GlobalParameters gp = GlobalWorkArea.getGlobalParameters(activity);
         boolean protectedApp = !gp.settingSecurityApplicationPasswordHashValue.isEmpty()
                 && gp.settingSecurityApplicationPasswordUseAppStartup;
@@ -57,7 +60,8 @@ public final class SMBsyncPlusApplication extends Application implements Applica
                 pendingBackground = null;
                 if (startedActivities == 0) {
                     backgroundEpoch++;
-                    GlobalWorkArea.getGlobalParameters(this).appPasswordAuthValidated = false;
+                    if (Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager())
+                        GlobalWorkArea.getGlobalParameters(this).appPasswordAuthValidated = false;
                 }
             };
             handler.postDelayed(pendingBackground, 250);
