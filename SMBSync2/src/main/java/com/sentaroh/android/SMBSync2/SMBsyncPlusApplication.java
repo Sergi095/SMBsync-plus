@@ -3,12 +3,14 @@ package com.sentaroh.android.SMBSync2;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.graphics.Insets;
 import android.os.Bundle;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 /** Tracks whether the entire app, rather than one screen, left the foreground. */
@@ -68,7 +70,24 @@ public final class SMBsyncPlusApplication extends Application implements Applica
         }
     }
 
-    @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
+    @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        // Android 15 draws target-35 activities behind the navigation bar. Keep
+        // controls inside the visible area, including in three-button mode.
+        if (Build.VERSION.SDK_INT < 35) return;
+        View content = activity.findViewById(android.R.id.content);
+        if (content == null) return;
+        final int left = content.getPaddingLeft();
+        final int top = content.getPaddingTop();
+        final int right = content.getPaddingRight();
+        final int bottom = content.getPaddingBottom();
+        content.setOnApplyWindowInsetsListener((view, insets) -> {
+            Insets navigation = insets.getInsets(WindowInsets.Type.navigationBars());
+            view.setPadding(left + navigation.left, top, right + navigation.right,
+                    bottom + navigation.bottom);
+            return insets;
+        });
+        content.requestApplyInsets();
+    }
     @Override public void onActivityResumed(Activity activity) {}
     @Override public void onActivityPaused(Activity activity) {}
     @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
