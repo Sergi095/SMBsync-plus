@@ -218,6 +218,9 @@ public class GlobalParameters extends CommonGlobalParms {
 
     public ArrayList<SyncMessageItem> syncMessageList = null; //new ArrayList<SyncMessageItem>();
     public boolean freezeMessageViewScroll = false;
+    public boolean messageScrollPausedByUser = false;
+    public boolean messageRefreshPending = false;
+    public final ArrayList<SyncMessageItem> pendingSyncMessages = new ArrayList<>();
     public AdapterSyncMessage syncMessageListAdapter = null;
     public ListView syncMessageListView = null;
     public boolean messageListViewMoveToBottomRequired =false;

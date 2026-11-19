@@ -5120,14 +5120,24 @@ public class ActivityMain extends AppCompatActivity {
     }
 
     private final static int MESSAGE_SCROLL_AMOUNT=1;
+    private boolean mMessageUserScrolling=false;
     private void setMessageContextButtonListener() {
         setMessageScrollButtonVisibility();
         mGp.syncMessageListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    mMessageUserScrolling=true;
+                    mGp.messageScrollPausedByUser=true;
+                } else if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                    mMessageUserScrolling=false;
+                    resumeMessageAutoFollowAtBottom();
+                }
+            }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (!mMessageUserScrolling) resumeMessageAutoFollowAtBottom();
                 setMessageScrollButtonVisibility();
             }
         });
@@ -5219,6 +5229,7 @@ public class ActivityMain extends AppCompatActivity {
                             mContext.getString(R.string.msgs_msg_cont_label_pinned_active));
                 } else {
                     mContextMessageButtonPinned.setImageResource(R.drawable.modern_pin);
+                    mGp.messageScrollPausedByUser=false;
                     mGp.syncMessageListView.setSelection(mGp.syncMessageListAdapter.getCount() - 1);
                     CommonUtilities.showToastMessageShort(mActivity, mContext.getString(R.string.msgs_log_inactivate_pinned));
                     ContextButtonUtil.setButtonLabelListener(mActivity, mContextMessageButtonPinned,
@@ -5243,6 +5254,7 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setContextButtonEnabled(mContextMessageButtonMoveBottom, false);
+                mGp.messageScrollPausedByUser=false;
                 mGp.syncMessageListView.setSelection(mGp.syncMessageListAdapter.getCount() - 1);
                 setContextButtonEnabled(mContextMessageButtonMoveBottom, true);
             }
@@ -5257,6 +5269,9 @@ public class ActivityMain extends AppCompatActivity {
                     @Override
                     public void positiveResponse(Context c, Object[] o) {
                         mGp.syncMessageListView.setSelection(0);
+                        synchronized (mGp.syncMessageList) {
+                            mGp.pendingSyncMessages.clear();
+                        }
                         if (mGp.syncMessageListAdapter !=null) mGp.syncMessageListAdapter.clear();
                         mUtil.addLogMsg("W", getString(R.string.msgs_log_msg_cleared));
                         CommonUtilities.saveMsgList(mGp);
@@ -5271,6 +5286,14 @@ public class ActivityMain extends AppCompatActivity {
             }
         });
         ContextButtonUtil.setButtonLabelListener(mActivity, mContextMessageButtonClear, mContext.getString(R.string.msgs_msg_cont_label_clear));
+    }
+
+    private void resumeMessageAutoFollowAtBottom() {
+        ListView list = mGp.syncMessageListView;
+        if (list != null && list.getCount() > 0
+                && list.getLastVisiblePosition() >= list.getCount() - 1) {
+            mGp.messageScrollPausedByUser=false;
+        }
     }
 
     private void setMessageContextButtonNormalMode() {

@@ -1,66 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_dialog_progress_spin_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:ignore="RtlHardcoded" >
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal" >
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="4dp">
 
         <ProgressBar
             android:id="@+id/main_dialog_progress_spin_progressBar"
-            android:indeterminateDrawable="@drawable/custom_progress_spin"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp" />
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:indeterminateDrawable="@drawable/custom_progress_spin" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/main_dialog_progress_spin_syncprof"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:lines="1"
                 android:ellipsize="end"
-                android:text=""
+                android:maxLines="1"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <com.sentaroh.android.Utilities.Widget.NonWordwrapTextView
+            <TextView
                 android:id="@+id/main_dialog_progress_spin_syncmsg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
                 android:ellipsize="end"
-                android:gravity="top"
-                android:maxLines="5"
-                android:text=""
+                android:maxLines="2"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-
         </LinearLayout>
+
+        <Button
+            android:id="@+id/main_dialog_progress_spin_btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginLeft="8dp"
+            android:minWidth="0dp"
+            android:text="@string/msgs_progress_spin_dlg_sync_cancel"
+            android:textAllCaps="false" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/main_dialog_progress_spin_btn_cancel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/msgs_progress_spin_dlg_sync_cancel"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <include layout="@layout/divider_line1_turquoise" />
-
 </LinearLayout>

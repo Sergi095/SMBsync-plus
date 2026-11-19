@@ -463,7 +463,9 @@ public final class CommonUtilities {
             PrintWriter bos=new PrintWriter(new BufferedOutputStream(fos, GENERAL_IO_AREA_SIZE));
             StringBuffer sb=new StringBuffer(1024);
             synchronized (gp.syncMessageList) {
-                for (SyncMessageItem smi:gp.syncMessageList) {
+                ArrayList<SyncMessageItem> messages = new ArrayList<>(gp.syncMessageList);
+                messages.addAll(gp.pendingSyncMessages);
+                for (SyncMessageItem smi:messages) {
                     sb.setLength(0);
                     sb.append("\u0001").append(smi.getCategory()).append("\u0000"); //msgCat
                     sb.append("\u0001").append(smi.getDate()).append("\u0000"); //msgDate
@@ -558,16 +560,28 @@ public final class CommonUtilities {
 
     private void putMsgListArray(SyncMessageItem mli) {
         synchronized (mGp.syncMessageList) {
-            if (mGp.syncMessageList.size() > (MAX_MSG_COUNT + 200)) {
-                for (int i = 0; i < 200; i++) mGp.syncMessageList.remove(0);
-            }
-            mGp.syncMessageList.add(mli);
-            if (mGp.syncMessageListAdapter != null) {
-                mGp.syncMessageListAdapter.notifyDataSetChanged();
-                if (!mGp.freezeMessageViewScroll) {
-                    mGp.syncMessageListView.setSelection(mGp.syncMessageList.size()-1);
-                    mGp.messageListViewMoveToBottomRequired =true;
-                }
+            mGp.pendingSyncMessages.add(mli);
+            if (!mGp.messageRefreshPending) {
+                mGp.messageRefreshPending = true;
+                mGp.uiHandler.postDelayed(() -> {
+                    mGp.messageRefreshPending = false;
+                    synchronized (mGp.syncMessageList) {
+                        if (mGp.pendingSyncMessages.isEmpty()) return;
+                        mGp.syncMessageList.addAll(mGp.pendingSyncMessages);
+                        mGp.pendingSyncMessages.clear();
+                        if (mGp.syncMessageList.size() > (MAX_MSG_COUNT + 200)) {
+                            mGp.syncMessageList.subList(0, mGp.syncMessageList.size() - MAX_MSG_COUNT).clear();
+                        }
+                        if (mGp.syncMessageListAdapter != null) {
+                            mGp.syncMessageListAdapter.notifyDataSetChanged();
+                            if (mGp.syncMessageListView != null && !mGp.freezeMessageViewScroll
+                                    && !mGp.messageScrollPausedByUser) {
+                                mGp.syncMessageListView.setSelection(mGp.syncMessageList.size() - 1);
+                                mGp.messageListViewMoveToBottomRequired = true;
+                            }
+                        }
+                    }
+                }, 100);
             }
         }
     }
